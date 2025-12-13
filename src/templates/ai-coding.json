@@ -1,0 +1,49 @@
+{
+  "name": "ai-coding",
+  "description": "Experiment to evaluate AI-assisted coding impact on productivity, quality, and satisfaction",
+  "hypotheses": [
+    "I procrastinate starting less with AI assistance",
+    "I ship more code with AI assistance",
+    "Code quality is slightly lower with AI but still acceptable",
+    "I write more tests and documentation with AI",
+    "I retain less understanding of the codebase with heavy AI use",
+    "Moderate AI use is more fulfilling than no AI or full AI"
+  ],
+  "conditions": {
+    "no-ai": {
+      "description": "No AI assistance",
+      "allowed": ["Documentation", "Stack Overflow", "Search engines", "Man pages"],
+      "forbidden": ["GitHub Copilot", "ChatGPT", "Claude", "Any AI coding assistant"]
+    },
+    "moderate": {
+      "description": "Limited AI assistance",
+      "allowed": [
+        "Autocomplete suggestions (Copilot)",
+        "AI for planning and architecture discussion",
+        "AI for explaining unfamiliar code",
+        "AI for commit messages and documentation"
+      ],
+      "forbidden": [
+        "AI-generated functions or components",
+        "AI writing tests",
+        "Agentic coding tools (Claude Code, Cursor Agent, etc.)"
+      ]
+    },
+    "full-ai": {
+      "description": "Full AI assistance",
+      "allowed": ["Everything"],
+      "forbidden": [],
+      "notes": "Use AI however feels natural. Pair programming, code generation, agents, etc."
+    }
+  },
+  "prompts": {
+    "checkin": [
+      {"id": "energy", "question": "Energy", "type": "rating", "min": 1, "max": 5, "required": false, "default": 3},
+      {"id": "focus", "question": "Focus", "type": "rating", "min": 1, "max": 5, "required": false, "default": 3},
+      {"id": "stuck", "question": "Stuck right now?", "type": "boolean", "required": false, "default": false},
+      {"id": "stuckMinutes", "question": "How long stuck (minutes)?", "type": "number", "required": false},
+      {"id": "oneWord", "question": "One word to describe right now", "type": "text", "required": false},
+      {"id": "reachingForAI", "question": "Caught yourself reaching for AI?", "type": "boolean", "required": false}
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+/**
+ * pulse log command
+ * Append freeform observations to dev log
+ * Works with or without an active block
+ */
+
+import type { Args } from "@std/cli/parse-args";
+import type { Command, LogArgs } from "../types/commands.ts";
+import { getDevLogPath } from "../lib/paths.ts";
+import { appendToFile } from "../lib/storage.ts";
+import { getCurrentBlock, getCurrentExperiment } from "../lib/state.ts";
+import { promptText } from "../lib/prompts.ts";
+import { error, formatDateTime, formatTime, success } from "../lib/format.ts";
+
+function validate(args: Args): LogArgs {
+  // Collect all positional args after "log" as the message
+  const messageParts = args._.slice(1).map(String);
+  return {
+    message: messageParts.length > 0 ? messageParts.join(" ") : undefined,
+    help: Boolean(args.help || args.h),
+  };
+}
+
+function showHelp(): void {
+  console.log(`
+Usage: pulse log [message] [options]
+
+Append a freeform observation to the dev log.
+Works with or without an active block.
+
+Arguments:
+  message       Log message (prompted if not provided)
+
+Options:
+  --help, -h    Show this help
+
+Examples:
+  pulse log "Finally cracked the caching bug"
+  pulse log
+`);
+}
+
+async function run(args: LogArgs): Promise<void> {
+  if (args.help) {
+    showHelp();
+    return;
+  }
+
+  const experiment = await getCurrentExperiment();
+
+  if (!experiment) {
+    error("No active experiment. Create one with: pulse init");
+    Deno.exit(1);
+  }
+
+  // Get message from args or prompt
+  let message = args.message;
+
+  if (!message) {
+    const input = promptText("Log entry");
+    if (!input) {
+      // User cancelled or empty input
+      return;
+    }
+    message = input;
+  }
+
+  const now = new Date();
+  const block = await getCurrentBlock();
+
+  // Format the log entry
+  let entry: string;
+  if (block) {
+    // Include block context
+    entry = `**${formatTime(now)}** [${block.condition}] ${message}\n\n`;
+  } else {
+    // No block context
+    entry = `**${formatDateTime(now)}** ${message}\n\n`;
+  }
+
+  // Append to dev log
+  const devLogPath = getDevLogPath(experiment.name);
+  await appendToFile(devLogPath, entry);
+
+  success(`Logged at ${formatTime(now)}`);
+}
+
+export const logCommand: Command<LogArgs> = {
+  name: "log",
+  description: "Append to dev log",
+  usage: "pulse log [message]",
+  parseOptions: {
+    boolean: ["help"],
+    alias: { h: "help" },
+  },
+  validate,
+  run,
+};

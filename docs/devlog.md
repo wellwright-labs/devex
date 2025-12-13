@@ -58,3 +58,35 @@ updated cc plan
 
 created decision log
 
+impl config
+
+impl state
+
+impl prompts
+
+impl lib/format
+
+impl templates/blank
+
+impl templates/ai-coding
+
+impl commands/init
+
+impl main
+
+validate --help
+
+impl block
+
+impl daily
+
+impl checkin
+
+impl log
+
+reviewing milestone 1 code
+
+remove version const from main, use manifest
+
+rewrite commands to include validators & validate inputs
+
