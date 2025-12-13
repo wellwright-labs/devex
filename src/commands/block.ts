@@ -4,9 +4,8 @@
  */
 
 import type { Args } from "@std/cli/parse-args";
-import type { Block } from "../types/mod.ts";
+import type { Block, Condition } from "../types/mod.ts";
 import type { BlockArgs, Command } from "../types/commands.ts";
-import { SCHEMA_VERSIONS } from "../types/mod.ts";
 import { getConfig } from "../lib/config.ts";
 import { getBlockPath } from "../lib/paths.ts";
 import { readJson, writeJson } from "../lib/storage.ts";
@@ -20,6 +19,7 @@ import {
   requireExperiment,
 } from "../lib/state.ts";
 import { promptText } from "../lib/prompts.ts";
+import { sanitizeName } from "../lib/names.ts";
 import {
   dim,
   error,
@@ -34,11 +34,13 @@ import {
 function validate(args: Args): BlockArgs {
   const subcommand = args._[1]?.toString() as BlockArgs["subcommand"];
   const tagsArg = (args.tags as string) || (args.t as string);
+  const positionalArg = args._[2]?.toString();
 
   return {
     subcommand,
-    condition: args._[2]?.toString(),
-    days: args._[2] ? parseInt(args._[2].toString(), 10) : undefined,
+    // positionalArg is condition for "start", days for "extend"
+    condition: positionalArg,
+    days: positionalArg ? parseInt(positionalArg, 10) : undefined,
     duration: (args.duration as number) || (args.d as number),
     tags: tagsArg ? tagsArg.split(",").map((t) => t.trim()) : undefined,
     help: Boolean(args.help || args.h),
@@ -112,11 +114,15 @@ async function blockStart(args: BlockArgs): Promise<void> {
   }
 
   // Validate condition
-  const condition = args.condition;
-  if (!condition) {
+  if (!args.condition) {
     error("Condition required.");
     console.log(`\nAvailable conditions: ${Object.keys(experiment.conditions).join(", ")}`);
     Deno.exit(1);
+  }
+
+  const { name: condition, wasChanged } = sanitizeName(args.condition);
+  if (wasChanged) {
+    info(`Using normalized condition: ${condition}`);
   }
 
   if (!experiment.conditions[condition]) {
@@ -135,20 +141,7 @@ async function blockStart(args: BlockArgs): Promise<void> {
 
   // Show condition details
   const conditionDef = experiment.conditions[condition];
-  console.log("");
-  console.log(`Condition: ${condition}`);
-  console.log(`  ${conditionDef.description}`);
-
-  if (conditionDef.allowed && conditionDef.allowed.length > 0) {
-    console.log(`  Allowed: ${conditionDef.allowed.join(", ")}`);
-  }
-  if (conditionDef.forbidden && conditionDef.forbidden.length > 0) {
-    console.log(`  Forbidden: ${conditionDef.forbidden.join(", ")}`);
-  }
-  if (conditionDef.notes) {
-    console.log(`  Notes: ${conditionDef.notes}`);
-  }
-  console.log("");
+  printConditionDetails(condition, conditionDef);
 
   // Create block
   const block: Block = {
@@ -269,9 +262,8 @@ async function blockList(): Promise<void> {
   console.log("");
   const headers = ["Block", "Condition", "Started", "Days", "Status"];
   const rows = blocks.map((block) => {
-    const days = block.endDate
-      ? getDayInBlock({ ...block, startDate: block.startDate }, block.endDate).toString()
-      : getDayInBlock(block).toString();
+    const endOrNow = block.endDate ?? new Date();
+    const days = getDayInBlock(block, endOrNow).toString();
     const status = block.endDate ? "completed" : "active";
     return [block.id, block.condition, formatDate(block.startDate), days, status];
   });
@@ -304,6 +296,23 @@ async function blockExtend(args: BlockArgs): Promise<void> {
 
   success(`Extended block by ${days} days`);
   console.log(`  New duration: ${block.expectedDuration} days (was ${oldDuration})`);
+}
+
+function printConditionDetails(name: string, condition: Condition): void {
+  console.log("");
+  console.log(`Condition: ${name}`);
+  console.log(`  ${condition.description}`);
+
+  if (condition.allowed && condition.allowed.length > 0) {
+    console.log(`  Allowed: ${condition.allowed.join(", ")}`);
+  }
+  if (condition.forbidden && condition.forbidden.length > 0) {
+    console.log(`  Forbidden: ${condition.forbidden.join(", ")}`);
+  }
+  if (condition.notes) {
+    console.log(`  Notes: ${condition.notes}`);
+  }
+  console.log("");
 }
 
 export const blockCommand: Command<BlockArgs> = {
