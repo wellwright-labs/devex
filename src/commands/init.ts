@@ -15,7 +15,7 @@ import {
   getExperimentSubdirs,
   getInitialDirs,
 } from "../lib/paths.ts";
-import { ensureDir, fileExists, writeJson } from "../lib/storage.ts";
+import { appendToFile, ensureDir, fileExists, writeJson } from "../lib/storage.ts";
 import {
   promptBoolean,
   promptChoice,
@@ -24,6 +24,7 @@ import {
   promptTextRequired,
 } from "../lib/prompts.ts";
 import { error, info, success } from "../lib/format.ts";
+import { sanitizeName } from "../lib/names.ts";
 
 // Bundled templates
 import blankTemplate from "../templates/blank.json" with { type: "json" };
@@ -33,6 +34,8 @@ const TEMPLATES: Record<string, ExperimentTemplate> = {
   blank: blankTemplate as ExperimentTemplate,
   "ai-coding": aiCodingTemplate as ExperimentTemplate,
 };
+
+const TEMPLATE_NAMES = Object.keys(TEMPLATES);
 
 function validate(args: Args): InitArgs {
   return {
@@ -52,7 +55,7 @@ Arguments:
   name              Experiment name (prompted if not provided)
 
 Options:
-  --template, -t    Template to use: blank, ai-coding (default: prompted)
+  --template, -t    Template to use: ${TEMPLATE_NAMES.join(", ")} (default: prompted)
   --help, -h        Show this help
 
 Examples:
@@ -75,18 +78,8 @@ async function run(args: InitArgs): Promise<void> {
     info(`First run — will create data directory at ${dataDir}`);
   }
 
-  // Get experiment name from args or prompt
-  let name = args.name;
-  if (!name) {
-    name = promptText("Experiment name", "my-experiment");
-  }
-
-  // Normalize name (lowercase, no special chars)
-  const safeName = name.toLowerCase().replace(/[^a-z0-9-]/g, "-");
-  if (safeName !== name) {
-    info(`Using normalized name: ${safeName}`);
-    name = safeName;
-  }
+  // Get and sanitize experiment name
+  const name = await getExperimentName(args.name);
 
   // Check if experiment already exists
   const experimentPath = getExperimentPath(name);
@@ -95,83 +88,147 @@ async function run(args: InitArgs): Promise<void> {
     Deno.exit(1);
   }
 
-  // Choose template
-  let templateChoice = args.template;
-  if (!templateChoice || !TEMPLATES[templateChoice]) {
-    if (templateChoice && !TEMPLATES[templateChoice]) {
-      error(`Unknown template: ${templateChoice}`);
-      console.log(`Available: ${Object.keys(TEMPLATES).join(", ")}`);
-    }
-    templateChoice = promptChoice("Start from template?", ["blank", "ai-coding"], 0);
-  }
-  const template = TEMPLATES[templateChoice];
+  // Get template
+  const template = await getTemplate(args.template);
 
-  // Build experiment from template
-  let hypotheses = [...template.hypotheses];
-  let conditions = { ...template.conditions };
+  // Build experiment config (hypotheses and conditions)
+  const { hypotheses, conditions } = await buildExperimentConfig(template);
 
-  // Allow customization if blank template or user wants to customize
-  const customize = templateChoice === "blank" ||
-    promptBoolean("Customize hypotheses and conditions?", false);
-
-  if (customize) {
-    // Hypotheses
-    console.log("\nDefine your hypotheses (what you want to learn):");
-    if (hypotheses.length > 0) {
-      console.log("Current hypotheses:");
-      hypotheses.forEach((h, i) => console.log(`  ${i + 1}. ${h}`));
-      if (promptBoolean("Keep existing hypotheses?", true)) {
-        const additional = promptMultiline("Add more hypotheses");
-        hypotheses = [...hypotheses, ...additional];
-      } else {
-        hypotheses = promptMultiline("Enter hypotheses");
-      }
-    } else {
-      hypotheses = promptMultiline("Enter hypotheses");
-    }
-
-    // Conditions
-    console.log("\nDefine your conditions (different states to compare):");
-    if (Object.keys(conditions).length > 0) {
-      console.log("Current conditions:");
-      Object.entries(conditions).forEach(([condName, cond]) => {
-        console.log(`  - ${condName}: ${cond.description}`);
-      });
-      if (!promptBoolean("Keep existing conditions?", true)) {
-        conditions = {};
-      }
-    }
-
-    // Add new conditions
-    while (true) {
-      const addMore = Object.keys(conditions).length === 0
-        ? true
-        : promptBoolean("Add another condition?", false);
-
-      if (!addMore) break;
-
-      const condName = promptTextRequired("Condition name (e.g., 'no-ai', 'with-music')");
-      const safeCond = condName.toLowerCase().replace(/[^a-z0-9-]/g, "-");
-      const description = promptText("Description", "");
-
-      conditions[safeCond] = {
-        description: description || safeCond,
-      } as Condition;
-    }
-  }
-
-  // Create the experiment object
+  // Create the experiment
   const experiment: Experiment = {
     version: SCHEMA_VERSIONS.experiment,
     name,
     description: template.description,
     createdAt: new Date(),
-    template: templateChoice,
+    template: template.name,
     hypotheses,
     conditions,
     prompts: template.prompts,
   };
 
+  // Write to disk
+  await createExperimentFiles(name, experiment, isFirstRun);
+
+  // Set as active
+  const config = await getConfig();
+  config.activeExperiment = name;
+  await saveGlobalConfig(config);
+
+  // Output success
+  printSuccess(name, hypotheses, conditions);
+}
+
+async function getExperimentName(providedName?: string): Promise<string> {
+  let name = providedName;
+  if (!name) {
+    name = promptText("Experiment name", "my-experiment");
+  }
+
+  const result = sanitizeName(name);
+  if (result.wasChanged) {
+    info(`Using normalized name: ${result.name}`);
+  }
+
+  if (!result.isValid) {
+    error(`Invalid experiment name: "${name}"`);
+    Deno.exit(1);
+  }
+
+  return result.name;
+}
+
+async function getTemplate(providedTemplate?: string): Promise<ExperimentTemplate> {
+  let templateName = providedTemplate;
+
+  if (templateName && !TEMPLATES[templateName]) {
+    error(`Unknown template: ${templateName}`);
+    console.log(`Available: ${TEMPLATE_NAMES.join(", ")}`);
+    templateName = undefined;
+  }
+
+  if (!templateName) {
+    templateName = promptChoice("Start from template?", TEMPLATE_NAMES, 0);
+  }
+
+  return TEMPLATES[templateName];
+}
+
+async function buildExperimentConfig(
+  template: ExperimentTemplate,
+): Promise<{ hypotheses: string[]; conditions: Record<string, Condition> }> {
+  let hypotheses = [...template.hypotheses];
+  let conditions = { ...template.conditions };
+
+  const shouldCustomize = template.name === "blank" ||
+    promptBoolean("Customize hypotheses and conditions?", false);
+
+  if (shouldCustomize) {
+    hypotheses = await customizeHypotheses(hypotheses);
+    conditions = await customizeConditions(conditions);
+  }
+
+  return { hypotheses, conditions };
+}
+
+async function customizeHypotheses(existing: string[]): Promise<string[]> {
+  console.log("\nDefine your hypotheses (what you want to learn):");
+
+  if (existing.length > 0) {
+    console.log("Current hypotheses:");
+    existing.forEach((h, i) => console.log(`  ${i + 1}. ${h}`));
+
+    if (promptBoolean("Keep existing hypotheses?", true)) {
+      const additional = promptMultiline("Add more hypotheses");
+      return [...existing, ...additional];
+    }
+  }
+
+  return promptMultiline("Enter hypotheses");
+}
+
+async function customizeConditions(
+  existing: Record<string, Condition>,
+): Promise<Record<string, Condition>> {
+  console.log("\nDefine your conditions (different states to compare):");
+
+  let conditions = { ...existing };
+
+  if (Object.keys(conditions).length > 0) {
+    console.log("Current conditions:");
+    for (const [name, cond] of Object.entries(conditions)) {
+      console.log(`  - ${name}: ${cond.description}`);
+    }
+    if (!promptBoolean("Keep existing conditions?", true)) {
+      conditions = {};
+    }
+  }
+
+  // Add new conditions
+  while (true) {
+    const hasConditions = Object.keys(conditions).length > 0;
+    const addMore = hasConditions
+      ? promptBoolean("Add another condition?", false)
+      : true;
+
+    if (!addMore) break;
+
+    const condName = promptTextRequired("Condition name (e.g., 'no-ai', 'with-music')");
+    const result = sanitizeName(condName);
+    const description = promptText("Description", "");
+
+    conditions[result.name] = {
+      description: description || result.name,
+    };
+  }
+
+  return conditions;
+}
+
+async function createExperimentFiles(
+  name: string,
+  experiment: Experiment,
+  isFirstRun: boolean,
+): Promise<void> {
   // Create directories
   if (isFirstRun) {
     for (const dir of getInitialDirs()) {
@@ -184,19 +241,19 @@ async function run(args: InitArgs): Promise<void> {
   }
 
   // Write experiment file
-  await writeJson(experimentPath, experiment);
+  await writeJson(getExperimentPath(name), experiment);
 
   // Initialize dev log
   const devLogPath = getDevLogPath(name);
-  const devLogHeader = `# Dev Log: ${name}\n\nStarted: ${new Date().toLocaleDateString()}\n\n---\n\n`;
-  await Deno.writeTextFile(devLogPath, devLogHeader);
+  const header = `# Dev Log: ${name}\n\nStarted: ${new Date().toLocaleDateString()}\n\n---\n\n`;
+  await appendToFile(devLogPath, header);
+}
 
-  // Update config to set this as active experiment
-  const config = await getConfig();
-  config.activeExperiment = name;
-  await saveGlobalConfig(config);
-
-  // Success output
+function printSuccess(
+  name: string,
+  hypotheses: string[],
+  conditions: Record<string, Condition>,
+): void {
   console.log("");
   success(`Created experiment: ${name}`);
   console.log("");
@@ -205,9 +262,10 @@ async function run(args: InitArgs): Promise<void> {
   console.log(`  Data: ${getDataDir()}/experiments/${name}/`);
   console.log("");
 
-  if (Object.keys(conditions).length > 0) {
+  const conditionNames = Object.keys(conditions);
+  if (conditionNames.length > 0) {
     console.log("Next step:");
-    console.log(`  pulse block start ${Object.keys(conditions)[0]}`);
+    console.log(`  pulse block start ${conditionNames[0]}`);
   } else {
     console.log("Next step: Add conditions with pulse condition add <name>");
   }
