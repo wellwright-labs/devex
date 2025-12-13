@@ -105,22 +105,23 @@ export function formatDateId(date: Date): string {
  * Format as ISO week string YYYY-Www
  */
 export function formatWeekId(date: Date): string {
-  const year = date.getFullYear();
-  const week = getISOWeek(date);
+  const { year, week } = getISOWeekAndYear(date);
   return `${year}-W${String(week).padStart(2, "0")}`;
 }
 
 /**
- * Get ISO week number (1-53)
+ * Get ISO week number and year
+ * Year may differ from calendar year at year boundaries
  */
-function getISOWeek(date: Date): number {
+function getISOWeekAndYear(date: Date): { year: number; week: number } {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   // Set to nearest Thursday (ISO weeks start Monday, week 1 contains Jan 4)
   d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-  const yearStart = new Date(d.getFullYear(), 0, 1);
-  const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-  return weekNum;
+  const year = d.getFullYear();
+  const yearStart = new Date(year, 0, 1);
+  const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return { year, week };
 }
 
 /**
