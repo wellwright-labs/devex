@@ -8,7 +8,7 @@ While `pulse` ships with a default "AI-assisted coding" experiment template (and
 
 ## roadmap
 
-`pulse` is still in pre-alpha.
+`pulse` is still in pre-alpha. I'm intentionally keeping scope small, so shouldn't take long to get to alpha. But if you're here early, beware the codebase is still quite unstable/in early development.
 
 - [x] Milestone 1: Core loop (init, block, checkin, daily, log)
 - [ ] Milestone 2: Git foundation (auto-commit, backup)
