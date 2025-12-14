@@ -21,6 +21,8 @@ import {
   success,
   warn,
 } from "../lib/format.ts";
+import { getConfig } from "../lib/config.ts";
+import { autoCommit } from "../lib/git.ts";
 
 function validate(args: Args): DailyArgs {
   return {
@@ -116,6 +118,12 @@ async function run(args: DailyArgs): Promise<void> {
 
   // Save
   await writeJson(dailyPath, dailyLog);
+
+  // Auto-commit if enabled
+  const config = await getConfig();
+  if (config.git.autoCommit && config.git.commitOnDailyLog) {
+    await autoCommit(`Daily log: ${today}`);
+  }
 
   console.log("");
   success("Daily log saved");

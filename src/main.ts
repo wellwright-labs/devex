@@ -9,6 +9,8 @@ import { blockCommand } from "./commands/block.ts";
 import { checkinCommand } from "./commands/checkin.ts";
 import { dailyCommand } from "./commands/daily.ts";
 import { logCommand } from "./commands/log.ts";
+import { gitCommand } from "./commands/git.ts";
+import { syncCommand } from "./commands/sync.ts";
 import { showHelp, showVersion } from "./lib/help.ts";
 import { error } from "./lib/format.ts";
 
@@ -19,6 +21,8 @@ const commands = {
   checkin: checkinCommand,
   daily: dailyCommand,
   log: logCommand,
+  git: gitCommand,
+  sync: syncCommand,
 } as const;
 
 type CommandName = keyof typeof commands;

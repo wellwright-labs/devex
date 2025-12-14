@@ -22,6 +22,8 @@ Commands:
   checkin           Log a quick checkin
   daily             Log end-of-day reflection
   log [message]     Append to dev log
+  git <args>        Run git in data directory
+  sync              Commit and push data to remote
 
 Options:
   --help, -h        Show this help
@@ -33,6 +35,8 @@ Examples:
   pulse block start no-ai       Start a block under "no-ai" condition
   pulse checkin                 Log a checkin for current block
   pulse daily                   Log today's reflection
+  pulse git status              Show git status of data directory
+  pulse sync                    Commit and push all changes
 
 Data stored in: ${getDataDir()}
 `);

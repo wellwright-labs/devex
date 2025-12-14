@@ -34,6 +34,7 @@ import {
 } from "../lib/prompts.ts";
 import { error, info, success } from "../lib/format.ts";
 import { sanitizeName } from "../lib/names.ts";
+import { initGitRepository, isGitRepository } from "../lib/git.ts";
 
 // Bundled templates
 import blankTemplate from "../templates/blank.json" with { type: "json" };
@@ -246,6 +247,8 @@ async function createExperimentFiles(
   experiment: Experiment,
   isFirstRun: boolean,
 ): Promise<void> {
+  const dataDir = getDataDir();
+
   // Create directories
   if (isFirstRun) {
     for (const dir of getInitialDirs()) {
@@ -255,6 +258,14 @@ async function createExperimentFiles(
 
   for (const dir of getExperimentSubdirs(name)) {
     await ensureDir(dir);
+  }
+
+  // Initialize git repository on first run
+  if (isFirstRun) {
+    if (!(await isGitRepository(dataDir))) {
+      await initGitRepository(dataDir);
+      info("Initialized git repository");
+    }
   }
 
   // Write experiment file

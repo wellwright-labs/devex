@@ -30,6 +30,7 @@ import {
   success,
   warn,
 } from "../lib/format.ts";
+import { autoCommit } from "../lib/git.ts";
 
 function validate(args: Args): BlockArgs {
   const subcommand = args._[1]?.toString() as BlockArgs["subcommand"];
@@ -210,6 +211,12 @@ async function blockEnd(): Promise<void> {
   // Save
   const blockPath = getBlockPath(experiment.name, block.id);
   await writeJson(blockPath, block);
+
+  // Auto-commit if enabled
+  const config = await getConfig();
+  if (config.git.autoCommit && config.git.commitOnBlockEnd) {
+    await autoCommit(`Block ended: ${block.id}`);
+  }
 
   console.log("");
   success(`Ended block: ${block.id}`);

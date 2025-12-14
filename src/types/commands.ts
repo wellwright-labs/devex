@@ -50,6 +50,23 @@ export interface LogArgs {
 }
 
 /**
+ * Validated args for git command (passthrough)
+ */
+export interface GitArgs {
+  args: string[]; // passthrough args to git
+  help: boolean;
+}
+
+/**
+ * Validated args for sync command
+ */
+export interface SyncArgs {
+  message?: string;
+  noPush: boolean;
+  help: boolean;
+}
+
+/**
  * Command definition
  */
 export interface Command<T> {
