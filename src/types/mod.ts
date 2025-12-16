@@ -28,6 +28,10 @@ export interface GlobalConfig {
     commitOnBlockEnd: boolean;
     commitOnDailyLog: boolean;
   };
+
+  github?: {
+    token?: string; // Personal Access Token for GitHub API
+  };
 }
 
 // =============================================================================
@@ -222,6 +226,44 @@ export interface GitMetrics {
   repositories: Record<string, RepoMetrics>;
 
   totals: RepoMetrics;
+}
+
+// =============================================================================
+// Analysis Stats
+// =============================================================================
+
+export interface CheckinStats {
+  count: number;
+  promptedCount: number;
+  avgEnergy: number | null;
+  avgFocus: number | null;
+  stuckPercent: number;
+  avgStuckMinutes: number | null;
+  topWords: Array<{ word: string; count: number }>;
+}
+
+export interface DailyStats {
+  count: number;
+  avgRatings: {
+    confidence: number | null;
+    understanding: number | null;
+    fulfillment: number | null;
+    enjoyment: number | null;
+    cognitiveLoad: number | null;
+  };
+  taskTypeDistribution: {
+    routine: number;
+    integrative: number;
+    creative: number;
+  };
+}
+
+export interface BlockReport {
+  block: Block;
+  gitMetrics: GitMetrics | null;
+  checkinStats: CheckinStats;
+  dailyStats: DailyStats;
+  violations: number;
 }
 
 // =============================================================================

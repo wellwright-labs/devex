@@ -90,6 +90,8 @@ export function mergeConfig(
       commitOnDailyLog: saved.git?.commitOnDailyLog ??
         defaults.git.commitOnDailyLog,
     },
+
+    github: saved.github ?? defaults.github,
   };
 }
 
@@ -133,4 +135,18 @@ export async function removeRepository(path: string): Promise<void> {
     config.repositories.splice(index, 1);
     await saveGlobalConfig(config);
   }
+}
+
+/**
+ * Get GitHub token from env var or config
+ * Priority: GITHUB_TOKEN env var > config.github.token
+ */
+export async function getGitHubToken(): Promise<string | null> {
+  const envToken = Deno.env.get("GITHUB_TOKEN");
+  if (envToken) {
+    return envToken;
+  }
+
+  const config = await getConfig();
+  return config.github?.token ?? null;
 }

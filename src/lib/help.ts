@@ -24,6 +24,9 @@ Commands:
   log [message]     Append to dev log
   git <args>        Run git in data directory
   sync              Commit and push data to remote
+  metrics           Compute git metrics for a block
+  report            Generate analysis report
+  compare           Compare metrics between blocks
 
 Options:
   --help, -h        Show this help
@@ -37,6 +40,9 @@ Examples:
   pulse daily                   Log today's reflection
   pulse git status              Show git status of data directory
   pulse sync                    Commit and push all changes
+  pulse metrics                 Compute git metrics for current block
+  pulse report                  Generate report for current block
+  pulse compare no-ai-1 ai-1    Compare two blocks
 
 Data stored in: ${getDataDir()}
 `);

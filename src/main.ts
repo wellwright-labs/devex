@@ -11,6 +11,9 @@ import { dailyCommand } from "./commands/daily.ts";
 import { logCommand } from "./commands/log.ts";
 import { gitCommand } from "./commands/git.ts";
 import { syncCommand } from "./commands/sync.ts";
+import { metricsCommand } from "./commands/metrics.ts";
+import { reportCommand } from "./commands/report.ts";
+import { compareCommand } from "./commands/compare.ts";
 import { showHelp, showVersion } from "./lib/help.ts";
 import { error } from "./lib/format.ts";
 
@@ -23,6 +26,9 @@ const commands = {
   log: logCommand,
   git: gitCommand,
   sync: syncCommand,
+  metrics: metricsCommand,
+  report: reportCommand,
+  compare: compareCommand,
 } as const;
 
 type CommandName = keyof typeof commands;

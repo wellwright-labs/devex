@@ -67,6 +67,31 @@ export interface SyncArgs {
 }
 
 /**
+ * Validated args for metrics command
+ */
+export interface MetricsArgs {
+  block?: string;
+  refresh: boolean;
+  help: boolean;
+}
+
+/**
+ * Validated args for report command
+ */
+export interface ReportArgs {
+  block?: string;
+  help: boolean;
+}
+
+/**
+ * Validated args for compare command
+ */
+export interface CompareArgs {
+  blocks: string[];
+  help: boolean;
+}
+
+/**
  * Command definition
  */
 export interface Command<T> {
