@@ -27,6 +27,7 @@ export interface GlobalConfig {
     autoCommit: boolean; // default: true
     commitOnBlockEnd: boolean;
     commitOnDailyLog: boolean;
+    commitOnWeeklyReflection: boolean;
   };
 
   github?: {

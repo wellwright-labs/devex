@@ -21,7 +21,11 @@ Commands:
   block             Manage work blocks (start, end, status)
   checkin           Log a quick checkin
   daily             Log end-of-day reflection
+  weekly            Log weekly reflection
   log [message]     Append to dev log
+  config            Manage global configuration
+  edit              Edit data files in $EDITOR
+  export            Export experiment data as JSON
   git <args>        Run git in data directory
   sync              Commit and push data to remote
   metrics           Compute git metrics for a block
@@ -38,6 +42,10 @@ Examples:
   pulse block start no-ai       Start a block under "no-ai" condition
   pulse checkin                 Log a checkin for current block
   pulse daily                   Log today's reflection
+  pulse weekly                  Log this week's reflection
+  pulse edit daily              Edit today's daily log
+  pulse config list             Show current configuration
+  pulse export -o backup.json   Export all data to file
   pulse git status              Show git status of data directory
   pulse sync                    Commit and push all changes
   pulse metrics                 Compute git metrics for current block

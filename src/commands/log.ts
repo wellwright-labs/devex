@@ -55,9 +55,10 @@ async function run(args: LogArgs): Promise<void> {
 
   // Get message from args or prompt
   let message = args.message;
+  const devLogPath = getDevLogPath(experiment.name);
 
   if (!message) {
-    const input = promptText("Log entry");
+    const input = await promptText("Log entry");
     if (!input) {
       // User cancelled or empty input
       return;
@@ -79,7 +80,6 @@ async function run(args: LogArgs): Promise<void> {
   }
 
   // Append to dev log
-  const devLogPath = getDevLogPath(experiment.name);
   await appendToFile(devLogPath, entry);
 
   success(`Logged at ${formatTime(now)}`);

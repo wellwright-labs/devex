@@ -32,9 +32,14 @@ import {
   promptText,
   promptTextRequired,
 } from "../lib/prompts.ts";
-import { error, info, success } from "../lib/format.ts";
+import { dim, error, info, success } from "../lib/format.ts";
 import { sanitizeName } from "../lib/names.ts";
 import { initGitRepository, isGitRepository } from "../lib/git.ts";
+import {
+  getIntervalMinutes,
+  installScheduler,
+  isSchedulerInstalled,
+} from "../lib/scheduler.ts";
 
 // Bundled templates
 import blankTemplate from "../templates/blank.json" with { type: "json" };
@@ -121,21 +126,55 @@ async function run(args: InitArgs): Promise<void> {
   };
 
   // Write to disk
-  await createExperimentFiles(name, experiment, isFirstRun);
+  await createExperimentFiles(name, experiment);
 
   // Set as active
   const config = await getConfig();
   config.activeExperiment = name;
   await saveGlobalConfig(config);
 
+  // Set up reminders if not already installed
+  await setupReminders(config.defaults.checkinFrequency);
+
   // Output success
   printSuccess(name, hypotheses, conditions);
+}
+
+async function setupReminders(frequency: number): Promise<void> {
+  // Skip if already installed or not on a supported platform
+  if (await isSchedulerInstalled()) {
+    return;
+  }
+
+  if (Deno.build.os !== "darwin" && Deno.build.os !== "linux") {
+    return;
+  }
+
+  console.log("");
+  const wantReminders = await promptBoolean(
+    "Set up check-in reminders?",
+    true,
+  );
+
+  if (!wantReminders) {
+    return;
+  }
+
+  const intervalMinutes = getIntervalMinutes(frequency);
+  const installed = await installScheduler(intervalMinutes);
+
+  if (installed) {
+    const timesPerDay = frequency;
+    dim(`Reminders set: ${timesPerDay}x per workday (every ~${intervalMinutes} min)`);
+  } else {
+    dim("Could not set up reminders. You can run 'pulse checkin' manually.");
+  }
 }
 
 async function getExperimentName(providedName?: string): Promise<string> {
   let name = providedName;
   if (!name) {
-    name = promptText("Experiment name", "my-experiment");
+    name = await promptText("Experiment name", "my-experiment");
   }
 
   const result = sanitizeName(name);
@@ -163,7 +202,7 @@ async function getTemplate(
   }
 
   if (!templateName) {
-    templateName = promptChoice("Start from template?", TEMPLATE_NAMES, 0);
+    templateName = await promptChoice("Start from template?", TEMPLATE_NAMES, 0);
   }
 
   return TEMPLATES[templateName];
@@ -176,7 +215,7 @@ async function buildExperimentConfig(
   let conditions = { ...template.conditions };
 
   const shouldCustomize = template.name === "blank" ||
-    promptBoolean("Customize hypotheses and conditions?", false);
+    await promptBoolean("Customize hypotheses and conditions?", false);
 
   if (shouldCustomize) {
     hypotheses = await customizeHypotheses(hypotheses);
@@ -193,13 +232,13 @@ async function customizeHypotheses(existing: string[]): Promise<string[]> {
     console.log("Current hypotheses:");
     existing.forEach((h, i) => console.log(`  ${i + 1}. ${h}`));
 
-    if (promptBoolean("Keep existing hypotheses?", true)) {
-      const additional = promptMultiline("Add more hypotheses");
+    if (await promptBoolean("Keep existing hypotheses?", true)) {
+      const additional = await promptMultiline("Add more hypotheses");
       return [...existing, ...additional];
     }
   }
 
-  return promptMultiline("Enter hypotheses");
+  return await promptMultiline("Enter hypotheses");
 }
 
 async function customizeConditions(
@@ -214,7 +253,7 @@ async function customizeConditions(
     for (const [name, cond] of Object.entries(conditions)) {
       console.log(`  - ${name}: ${cond.description}`);
     }
-    if (!promptBoolean("Keep existing conditions?", true)) {
+    if (!(await promptBoolean("Keep existing conditions?", true))) {
       conditions = {};
     }
   }
@@ -223,16 +262,16 @@ async function customizeConditions(
   while (true) {
     const hasConditions = Object.keys(conditions).length > 0;
     const addMore = hasConditions
-      ? promptBoolean("Add another condition?", false)
+      ? await promptBoolean("Add another condition?", false)
       : true;
 
     if (!addMore) break;
 
-    const condName = promptTextRequired(
+    const condName = await promptTextRequired(
       "Condition name (e.g., 'no-ai', 'with-music')",
     );
     const result = sanitizeName(condName);
-    const description = promptText("Description", "");
+    const description = await promptText("Description", "");
 
     conditions[result.name] = {
       description: description || result.name,
@@ -245,27 +284,21 @@ async function customizeConditions(
 async function createExperimentFiles(
   name: string,
   experiment: Experiment,
-  isFirstRun: boolean,
 ): Promise<void> {
   const dataDir = getDataDir();
 
-  // Create directories
-  if (isFirstRun) {
-    for (const dir of getInitialDirs()) {
-      await ensureDir(dir);
-    }
+  // Create directories (always ensure they exist)
+  for (const dir of getInitialDirs()) {
+    await ensureDir(dir);
   }
-
   for (const dir of getExperimentSubdirs(name)) {
     await ensureDir(dir);
   }
 
-  // Initialize git repository on first run
-  if (isFirstRun) {
-    if (!(await isGitRepository(dataDir))) {
-      await initGitRepository(dataDir);
-      info("Initialized git repository");
-    }
+  // Ensure git repository is initialized
+  if (!(await isGitRepository(dataDir))) {
+    await initGitRepository(dataDir);
+    info("Initialized git repository");
   }
 
   // Write experiment file
@@ -286,15 +319,29 @@ function printSuccess(
 ): void {
   console.log("");
   success(`Created experiment: ${name}`);
+
+  // Show hypotheses
+  if (hypotheses.length > 0) {
+    console.log("");
+    console.log("Hypotheses:");
+    hypotheses.forEach((h, i) => console.log(`  ${i + 1}. ${h}`));
+  }
+
+  // Show conditions with descriptions
+  const conditionNames = Object.keys(conditions);
+  if (conditionNames.length > 0) {
+    console.log("");
+    console.log("Conditions:");
+    for (const [condName, cond] of Object.entries(conditions)) {
+      console.log(`  ${condName}: ${cond.description}`);
+    }
+  }
+
   console.log("");
-  console.log(`  Hypotheses: ${hypotheses.length}`);
-  console.log(
-    `  Conditions: ${Object.keys(conditions).join(", ") || "(none)"}`,
-  );
-  console.log(`  Data: ${getDataDir()}/experiments/${name}/`);
+  dim(`Data: ${getDataDir()}/experiments/${name}/`);
+  dim("Changes auto-committed to git");
   console.log("");
 
-  const conditionNames = Object.keys(conditions);
   if (conditionNames.length > 0) {
     console.log("Next step:");
     console.log(`  pulse block start ${conditionNames[0]}`);

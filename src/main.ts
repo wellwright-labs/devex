@@ -8,7 +8,11 @@ import { initCommand } from "./commands/init.ts";
 import { blockCommand } from "./commands/block.ts";
 import { checkinCommand } from "./commands/checkin.ts";
 import { dailyCommand } from "./commands/daily.ts";
+import { weeklyCommand } from "./commands/weekly.ts";
 import { logCommand } from "./commands/log.ts";
+import { configCommand } from "./commands/config.ts";
+import { editCommand } from "./commands/edit.ts";
+import { exportCommand } from "./commands/export.ts";
 import { gitCommand } from "./commands/git.ts";
 import { syncCommand } from "./commands/sync.ts";
 import { metricsCommand } from "./commands/metrics.ts";
@@ -23,7 +27,11 @@ const commands = {
   block: blockCommand,
   checkin: checkinCommand,
   daily: dailyCommand,
+  weekly: weeklyCommand,
   log: logCommand,
+  config: configCommand,
+  edit: editCommand,
+  export: exportCommand,
   git: gitCommand,
   sync: syncCommand,
   metrics: metricsCommand,

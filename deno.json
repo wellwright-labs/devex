@@ -9,7 +9,8 @@
     "dev": "deno run --allow-read --allow-write --allow-run --allow-env src/main.ts",
     "test": "deno test --allow-read --allow-write --allow-env --allow-run",
     "check": "deno check src/main.ts",
-    "compile": "deno compile --allow-read --allow-write --allow-run --allow-env --output pulse src/main.ts"
+    "compile": "deno compile --allow-read --allow-write --allow-run --allow-env --output pulse src/main.ts",
+    "clean": "rm -rf ~/.config/pulse && echo 'Cleaned ~/.config/pulse'"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.0",

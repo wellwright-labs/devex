@@ -28,6 +28,7 @@ export function getDefaults(): GlobalConfig {
       autoCommit: true,
       commitOnBlockEnd: true,
       commitOnDailyLog: true,
+      commitOnWeeklyReflection: true,
     },
   };
 }
@@ -89,6 +90,8 @@ export function mergeConfig(
         defaults.git.commitOnBlockEnd,
       commitOnDailyLog: saved.git?.commitOnDailyLog ??
         defaults.git.commitOnDailyLog,
+      commitOnWeeklyReflection: saved.git?.commitOnWeeklyReflection ??
+        defaults.git.commitOnWeeklyReflection,
     },
 
     github: saved.github ?? defaults.github,

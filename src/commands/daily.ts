@@ -15,6 +15,7 @@ import {
 } from "../lib/state.ts";
 import { promptRating, promptText } from "../lib/prompts.ts";
 import {
+  dim,
   formatBlockStatus,
   formatDateId,
   info,
@@ -74,29 +75,31 @@ async function run(args: DailyArgs): Promise<void> {
   console.log("");
 
   // Collect daily log data
-  const shipped = promptText("What did you ship today?");
-  const struggled = promptText("What did you struggle with?");
+  const shipped = await promptText("What did you ship today?");
+  const struggled = await promptText("What did you struggle with?");
 
   console.log("");
   console.log("Ratings (1-5, Enter to skip):");
-  const confidence = promptRating("  Confidence in today's code", 1, 5, 3);
-  const understanding = promptRating(
+  const confidence = await promptRating("  Confidence in today's code", 1, 5, 3);
+  const understanding = await promptRating(
     "  Understanding of today's code",
     1,
     5,
     3,
   );
-  const fulfillment = promptRating("  Fulfillment", 1, 5, 3);
-  const enjoyment = promptRating("  Enjoyment", 1, 5, 3);
-  const cognitiveLoad = promptRating("  Cognitive load", 1, 5, 3);
+  const fulfillment = await promptRating("  Fulfillment", 1, 5, 3);
+  const enjoyment = await promptRating("  Enjoyment", 1, 5, 3);
+  const cognitiveLoad = await promptRating("  Cognitive load", 1, 5, 3);
 
   console.log("");
-  const taskTypesInput = promptText(
-    "Task types (r=routine, i=integrative, c=creative)",
-  );
+  console.log("Task types:");
+  dim("  r = Routine: Familiar work, low cognitive load (bug fixes, updates)");
+  dim("  i = Integrative: Connecting pieces (refactoring, integration)");
+  dim("  c = Creative: Novel problem solving (new features, architecture)");
+  const taskTypesInput = await promptText("Task types today");
   const taskTypes = parseTaskTypes(taskTypesInput);
 
-  const notes = promptText("Notes (optional)");
+  const notes = await promptText("Notes (optional)");
 
   // Create daily log
   const dailyLog: DailyLog = {
@@ -127,6 +130,8 @@ async function run(args: DailyArgs): Promise<void> {
 
   console.log("");
   success("Daily log saved");
+  console.log("");
+  dim("Next: pulse weekly (end of week) | pulse block status");
 }
 
 function parseTaskTypes(input: string): TaskType[] {

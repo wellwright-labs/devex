@@ -171,7 +171,7 @@ async function blockStart(args: BlockArgs): Promise<void> {
     console.log(`  Tags: ${tags.join(", ")}`);
   }
   console.log("");
-  console.log("Next: pulse checkin");
+  dim("Next: pulse checkin | pulse log <note>");
 }
 
 async function blockEnd(): Promise<void> {
@@ -195,9 +195,9 @@ async function blockEnd(): Promise<void> {
 
   // Prompt for summary
   console.log("Block summary:");
-  const description = promptText("How would you describe this block?");
-  const surprises = promptText("What surprised you?");
-  const confirmedExpectations = promptText("What confirmed your expectations?");
+  const description = await promptText("How would you describe this block?");
+  const surprises = await promptText("What surprised you?");
+  const confirmedExpectations = await promptText("What confirmed your expectations?");
 
   // Update block
   block.endDate = new Date();
@@ -222,7 +222,7 @@ async function blockEnd(): Promise<void> {
   success(`Ended block: ${block.id}`);
   console.log(`  Duration: ${getDayInBlock(block)} days`);
   console.log("");
-  console.log("Run 'pulse report' to see block analysis.");
+  dim("Next: pulse report | pulse block start <condition>");
 }
 
 async function blockStatus(): Promise<void> {

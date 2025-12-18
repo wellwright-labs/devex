@@ -92,6 +92,46 @@ export interface CompareArgs {
 }
 
 /**
+ * Validated args for weekly command
+ */
+export interface WeeklyArgs {
+  help: boolean;
+}
+
+/**
+ * Validated args for config command
+ */
+export interface ConfigArgs {
+  subcommand?: "list" | "set" | "add" | "remove";
+  key?: string;
+  value?: string;
+  help: boolean;
+}
+
+/**
+ * Validated args for edit command
+ */
+export interface EditArgs {
+  target?:
+    | "daily"
+    | "checkin"
+    | "weekly"
+    | "block"
+    | "config"
+    | "experiment";
+  identifier?: string;
+  help: boolean;
+}
+
+/**
+ * Validated args for export command
+ */
+export interface ExportArgs {
+  output?: string;
+  help: boolean;
+}
+
+/**
  * Command definition
  */
 export interface Command<T> {

@@ -20,6 +20,7 @@ import {
   promptText,
 } from "../lib/prompts.ts";
 import {
+  dim,
   formatBlockStatus,
   formatDateId,
   formatTime,
@@ -86,19 +87,19 @@ async function run(args: CheckinArgs): Promise<void> {
     };
   } else {
     // Interactive checkin
-    const energy = promptRating("Energy", 1, 5, 3);
-    const focus = promptRating("Focus", 1, 5, 3);
-    const stuck = promptBoolean("Stuck?", false);
+    const energy = await promptRating("Energy", 1, 5, 3);
+    const focus = await promptRating("Focus", 1, 5, 3);
+    const stuck = await promptBoolean("Stuck?", false);
 
     let stuckMinutes: number | undefined;
     if (stuck) {
-      const minutes = promptNumber("How long (minutes)?");
+      const minutes = await promptNumber("How long (minutes)?");
       if (minutes !== null) {
         stuckMinutes = minutes;
       }
     }
 
-    const oneWord = promptText("One word to describe right now");
+    const oneWord = await promptText("One word to describe right now");
 
     checkin = {
       id: crypto.randomUUID(),
@@ -136,6 +137,9 @@ async function run(args: CheckinArgs): Promise<void> {
     const count = dailyCheckins.checkins.length;
     console.log(`  Today: ${count} checkin${count !== 1 ? "s" : ""}`);
   }
+
+  console.log("");
+  dim("Next: pulse daily (end of day) | pulse checkin (another checkin)");
 }
 
 export const checkinCommand: Command<CheckinArgs> = {

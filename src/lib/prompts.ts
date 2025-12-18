@@ -1,30 +1,29 @@
 /**
  * Interactive prompt utilities for Pulse
- * All prompts support Enter to accept default/skip
+ * Uses TTY utilities for better UX when available, falls back to basic prompts
  */
+
+import * as tty from "./tty.ts";
 
 /**
- * Prompt for a text value
+ * Prompt for a text value with placeholder display
  * Returns empty string if user presses Enter without input
  */
-export function promptText(question: string, defaultValue = ""): string {
-  const suffix = defaultValue ? ` [${defaultValue}]` : "";
-  const result = prompt(`${question}${suffix}:`);
-
-  if (result === null || result.trim() === "") {
-    return defaultValue;
-  }
-  return result.trim();
+export async function promptText(
+  question: string,
+  defaultValue = "",
+): Promise<string> {
+  return await tty.input(question, defaultValue);
 }
 
 /**
  * Prompt for a required text value
  * Keeps prompting until user provides non-empty input
  */
-export function promptTextRequired(question: string): string {
+export async function promptTextRequired(question: string): Promise<string> {
   while (true) {
-    const result = prompt(`${question}:`);
-    if (result !== null && result.trim() !== "") {
+    const result = await tty.input(question);
+    if (result.trim() !== "") {
       return result.trim();
     }
     console.log("  This field is required.");
@@ -32,110 +31,66 @@ export function promptTextRequired(question: string): string {
 }
 
 /**
- * Prompt for a yes/no boolean
+ * Prompt for a yes/no boolean with visual toggle
  * Default is used if user presses Enter
  */
-export function promptBoolean(question: string, defaultValue = false): boolean {
-  const hint = defaultValue ? "[Y/n]" : "[y/N]";
-  const result = prompt(`${question} ${hint}:`);
-
-  if (result === null || result.trim() === "") {
-    return defaultValue;
-  }
-
-  const lower = result.trim().toLowerCase();
-  return lower === "y" || lower === "yes";
+export async function promptBoolean(
+  question: string,
+  defaultValue = false,
+): Promise<boolean> {
+  return await tty.confirm(question, defaultValue);
 }
 
 /**
- * Prompt for a numeric rating (typically 1-5)
+ * Prompt for a numeric rating (typically 1-5) with arrow key adjustment
  * Returns default if user presses Enter
  */
-export function promptRating(
+export async function promptRating(
   question: string,
   min = 1,
   max = 5,
   defaultValue = 3,
-): number {
-  while (true) {
-    const result = prompt(`${question} (${min}-${max}) [${defaultValue}]:`);
-
-    if (result === null || result.trim() === "") {
-      return defaultValue;
-    }
-
-    const num = parseInt(result.trim(), 10);
-    if (!isNaN(num) && num >= min && num <= max) {
-      return num;
-    }
-
-    console.log(`  Please enter a number between ${min} and ${max}.`);
-  }
+): Promise<number> {
+  return await tty.rating(question, min, max, defaultValue);
 }
 
 /**
  * Prompt for a number (any positive integer)
  * Returns default if user presses Enter, null if skipped with empty on optional
  */
-export function promptNumber(
+export async function promptNumber(
   question: string,
   defaultValue?: number,
-): number | null {
-  const suffix = defaultValue !== undefined ? ` [${defaultValue}]` : "";
+): Promise<number | null> {
+  const result = await tty.input(
+    question,
+    defaultValue !== undefined ? String(defaultValue) : "",
+  );
 
-  while (true) {
-    const result = prompt(`${question}${suffix}:`);
-
-    if (result === null || result.trim() === "") {
-      return defaultValue ?? null;
-    }
-
-    const num = parseInt(result.trim(), 10);
-    if (!isNaN(num) && num >= 0) {
-      return num;
-    }
-
-    console.log("  Please enter a valid number.");
+  if (result === "") {
+    return defaultValue ?? null;
   }
+
+  const num = parseInt(result.trim(), 10);
+  if (!isNaN(num) && num >= 0) {
+    return num;
+  }
+
+  console.log("  Please enter a valid number.");
+  return await promptNumber(question, defaultValue);
 }
 
 /**
- * Prompt for a choice from a list of options
+ * Prompt for a choice from a list of options with arrow key navigation
  * Returns the selected option string
  */
-export function promptChoice(
+export async function promptChoice(
   question: string,
   options: string[],
   defaultIndex = 0,
-): string {
-  console.log(`${question}`);
-  options.forEach((opt, i) => {
-    const marker = i === defaultIndex ? "*" : " ";
-    console.log(`  ${marker}${i + 1}. ${opt}`);
-  });
-
-  while (true) {
-    const result = prompt(`Choice [${defaultIndex + 1}]:`);
-
-    if (result === null || result.trim() === "") {
-      return options[defaultIndex];
-    }
-
-    const num = parseInt(result.trim(), 10);
-    if (!isNaN(num) && num >= 1 && num <= options.length) {
-      return options[num - 1];
-    }
-
-    // Also accept the option text directly
-    const match = options.find(
-      (o) => o.toLowerCase() === result.trim().toLowerCase(),
-    );
-    if (match) {
-      return match;
-    }
-
-    console.log(`  Please enter a number 1-${options.length}.`);
-  }
+): Promise<string> {
+  const index = await tty.select(question, options, defaultIndex);
+  return options[index];
 }
 
 /**
@@ -143,13 +98,13 @@ export function promptChoice(
  * Empty line ends input
  * Returns array of non-empty lines
  */
-export function promptMultiline(question: string): string[] {
+export async function promptMultiline(question: string): Promise<string[]> {
   console.log(`${question} (empty line to finish):`);
   const lines: string[] = [];
 
   while (true) {
-    const line = prompt(">");
-    if (line === null || line.trim() === "") {
+    const line = await tty.input(">");
+    if (line.trim() === "") {
       break;
     }
     lines.push(line.trim());
