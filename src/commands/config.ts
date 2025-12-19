@@ -134,7 +134,7 @@ async function setConfigValue(
 ): Promise<void> {
   if (!key || value === undefined) {
     error("Usage: pulse config set <key> <value>");
-    return;
+    Deno.exit(1);
   }
 
   const config = await getConfig();
@@ -152,7 +152,7 @@ async function setConfigValue(
   for (let i = 0; i < parts.length - 1; i++) {
     if (current[parts[i]] === undefined) {
       error(`Unknown config key: ${key}`);
-      return;
+      Deno.exit(1);
     }
     current = current[parts[i]];
   }
@@ -160,7 +160,7 @@ async function setConfigValue(
   const lastKey = parts[parts.length - 1];
   if (current[lastKey] === undefined) {
     error(`Unknown config key: ${key}`);
-    return;
+    Deno.exit(1);
   }
 
   current[lastKey] = parsedValue;
@@ -174,7 +174,7 @@ async function addRepoPath(
 ): Promise<void> {
   if (target !== "repos" || !path) {
     error("Usage: pulse config add repos <path>");
-    return;
+    Deno.exit(1);
   }
 
   // Resolve to absolute path (handles ".", "..", relative paths)
@@ -183,7 +183,7 @@ async function addRepoPath(
   // Verify directory exists
   if (!(await dirExists(absolutePath))) {
     error(`Directory not found: ${absolutePath}`);
-    return;
+    Deno.exit(1);
   }
 
   await addRepository(absolutePath);
@@ -196,7 +196,7 @@ async function removeRepoPath(
 ): Promise<void> {
   if (target !== "repos" || !path) {
     error("Usage: pulse config remove repos <path>");
-    return;
+    Deno.exit(1);
   }
 
   // Resolve to absolute path (handles ".", "..", relative paths)
@@ -209,7 +209,7 @@ async function removeRepoPath(
   ) {
     error(`Repository not in config: ${path}`);
     info(`Current repositories: ${config.repositories.join(", ") || "(none)"}`);
-    return;
+    Deno.exit(1);
   }
 
   // Remove whichever one exists

@@ -197,7 +197,9 @@ async function blockEnd(): Promise<void> {
   console.log("Block summary:");
   const description = await promptText("How would you describe this block?");
   const surprises = await promptText("What surprised you?");
-  const confirmedExpectations = await promptText("What confirmed your expectations?");
+  const confirmedExpectations = await promptText(
+    "What confirmed your expectations?",
+  );
 
   // Update block
   block.endDate = new Date();

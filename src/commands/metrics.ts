@@ -95,7 +95,8 @@ async function run(args: MetricsArgs): Promise<void> {
       await writeJson(metricsPath, metrics);
       success("Metrics computed and cached");
     } catch (err) {
-      error(`Failed to compute metrics: ${err}`);
+      const message = err instanceof Error ? err.message : String(err);
+      error(`Failed to compute metrics: ${message}`);
       Deno.exit(1);
     }
   }

@@ -60,7 +60,6 @@ pulse report              # See analysis
 ## future ideas
 
 - **AI observability** - Hook into agents and record prompt inputs, timestamps, tokens, etc.
-- **Violation tracking** - Log when you break experiment rules (types exist, needs wiring)
 - **Streaks & insights** - Track consistency, surface patterns automatically
 - **Cross-experiment comparison** - Compare results across different experiments
 - **IDE integration** - VS Code extension for in-editor check-ins

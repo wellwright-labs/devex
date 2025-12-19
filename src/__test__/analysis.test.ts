@@ -192,7 +192,11 @@ Deno.test("aggregateDailyLogs - empty returns null averages", () => {
   assertEquals(stats.avgRatings.fulfillment, null);
   assertEquals(stats.avgRatings.enjoyment, null);
   assertEquals(stats.avgRatings.cognitiveLoad, null);
-  assertEquals(stats.taskTypeDistribution, { routine: 0, integrative: 0, creative: 0 });
+  assertEquals(stats.taskTypeDistribution, {
+    routine: 0,
+    integrative: 0,
+    creative: 0,
+  });
 });
 
 Deno.test("aggregateDailyLogs - counts logs", () => {
@@ -248,8 +252,8 @@ Deno.test("aggregateDailyLogs - calculates task type distribution", () => {
   ];
   const stats = aggregateDailyLogs(logs);
   // 2 routine, 1 creative, 1 integrative = 4 total
-  assertEquals(stats.taskTypeDistribution.routine, 50);    // 2/4
-  assertEquals(stats.taskTypeDistribution.creative, 25);   // 1/4
+  assertEquals(stats.taskTypeDistribution.routine, 50); // 2/4
+  assertEquals(stats.taskTypeDistribution.creative, 25); // 1/4
   assertEquals(stats.taskTypeDistribution.integrative, 25); // 1/4
 });
 
@@ -270,5 +274,9 @@ Deno.test("aggregateDailyLogs - all zeros when no taskTypes", () => {
     makeDailyLog({}),
   ];
   const stats = aggregateDailyLogs(logs);
-  assertEquals(stats.taskTypeDistribution, { routine: 0, integrative: 0, creative: 0 });
+  assertEquals(stats.taskTypeDistribution, {
+    routine: 0,
+    integrative: 0,
+    creative: 0,
+  });
 });

@@ -68,7 +68,11 @@ async function run(args: WeeklyArgs): Promise<void> {
   // Show block status
   console.log("");
   console.log(
-    formatBlockStatus(block.condition, getDayInBlock(block, now), block.expectedDuration),
+    formatBlockStatus(
+      block.condition,
+      getDayInBlock(block, now),
+      block.expectedDuration,
+    ),
   );
   console.log(`[Week: ${weekId}]`);
   console.log("");

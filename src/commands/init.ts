@@ -165,7 +165,9 @@ async function setupReminders(frequency: number): Promise<void> {
 
   if (installed) {
     const timesPerDay = frequency;
-    dim(`Reminders set: ${timesPerDay}x per workday (every ~${intervalMinutes} min)`);
+    dim(
+      `Reminders set: ${timesPerDay}x per workday (every ~${intervalMinutes} min)`,
+    );
   } else {
     dim("Could not set up reminders. You can run 'pulse checkin' manually.");
   }
@@ -202,7 +204,11 @@ async function getTemplate(
   }
 
   if (!templateName) {
-    templateName = await promptChoice("Start from template?", TEMPLATE_NAMES, 0);
+    templateName = await promptChoice(
+      "Start from template?",
+      TEMPLATE_NAMES,
+      0,
+    );
   }
 
   return TEMPLATES[templateName];

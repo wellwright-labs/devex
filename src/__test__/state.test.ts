@@ -207,8 +207,14 @@ Deno.test("generateBlockId - increments based on existing blocks", async () => {
     await createExperimentStructure(dataDir, "test-exp");
 
     // Create existing blocks
-    const block1 = makeBlockHelper({ id: "treatment-1", condition: "treatment" });
-    const block2 = makeBlockHelper({ id: "treatment-2", condition: "treatment" });
+    const block1 = makeBlockHelper({
+      id: "treatment-1",
+      condition: "treatment",
+    });
+    const block2 = makeBlockHelper({
+      id: "treatment-2",
+      condition: "treatment",
+    });
     await writeJson(getBlockPath("test-exp", "treatment-1"), block1);
     await writeJson(getBlockPath("test-exp", "treatment-2"), block2);
 
@@ -225,7 +231,10 @@ Deno.test("generateBlockId - counts only matching condition", async () => {
     await createExperimentStructure(dataDir, "test-exp");
 
     // Create blocks with different conditions
-    const block1 = makeBlockHelper({ id: "treatment-1", condition: "treatment" });
+    const block1 = makeBlockHelper({
+      id: "treatment-1",
+      condition: "treatment",
+    });
     const block2 = makeBlockHelper({ id: "control-1", condition: "control" });
     await writeJson(getBlockPath("test-exp", "treatment-1"), block1);
     await writeJson(getBlockPath("test-exp", "control-1"), block2);

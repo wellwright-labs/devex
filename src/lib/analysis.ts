@@ -1,6 +1,6 @@
 /**
  * Analysis and aggregation for Pulse reports
- * Aggregates checkins, daily logs, and violations for block reports
+ * Aggregates checkins and daily logs for block reports
  */
 
 import type {
@@ -10,9 +10,8 @@ import type {
   DailyCheckins,
   DailyLog,
   DailyStats,
-  Violation,
 } from "../types/mod.ts";
-import { getCheckinsDir, getDailyDir, getViolationsPath } from "./paths.ts";
+import { getCheckinsDir, getDailyDir } from "./paths.ts";
 import { listFiles, readJson } from "./storage.ts";
 import { formatDateId } from "./format.ts";
 
@@ -214,27 +213,6 @@ export function aggregateDailyLogs(logs: DailyLog[]): DailyStats {
     avgRatings,
     taskTypeDistribution,
   };
-}
-
-// =============================================================================
-// Violations
-// =============================================================================
-
-/**
- * Load violations for a specific block
- */
-export async function loadViolationsForBlock(
-  experimentName: string,
-  blockId: string,
-): Promise<Violation[]> {
-  const violationsPath = getViolationsPath(experimentName);
-  const allViolations = await readJson<Violation[]>(violationsPath);
-
-  if (!allViolations) {
-    return [];
-  }
-
-  return allViolations.filter((v) => v.block === blockId);
 }
 
 // =============================================================================

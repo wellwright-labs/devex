@@ -81,7 +81,11 @@ async function run(args: StatusArgs): Promise<void> {
   const hasWeeklyLog = await fileExists(weeklyPath);
 
   // Find missed daily logs
-  const missedDailies = await findMissedDailies(experiment.name, block.startDate, now);
+  const missedDailies = await findMissedDailies(
+    experiment.name,
+    block.startDate,
+    now,
+  );
 
   // Calculate next action
   const nextAction = calculateNextAction(
@@ -95,7 +99,9 @@ async function run(args: StatusArgs): Promise<void> {
 
   // Render dashboard
   console.log("");
-  console.log(formatBlockStatus(block.condition, dayInBlock, block.expectedDuration));
+  console.log(
+    formatBlockStatus(block.condition, dayInBlock, block.expectedDuration),
+  );
   console.log("");
 
   // Today section
@@ -104,20 +110,18 @@ async function run(args: StatusArgs): Promise<void> {
 
   const checkinStatus = checkinCount >= expectedCheckins
     ? `${checkinCount} of ${expectedCheckins}`
-    : `${checkinCount} of ${expectedCheckins}  ${dimText(`← ${expectedCheckins - checkinCount} more expected`)}`;
+    : `${checkinCount} of ${expectedCheckins}  ${
+      dimText(`← ${expectedCheckins - checkinCount} more expected`)
+    }`;
   console.log(`  Check-ins: ${checkinStatus}`);
 
-  const dailyStatus = hasDailyLog
-    ? "done"
-    : dimText("not yet");
+  const dailyStatus = hasDailyLog ? "done" : dimText("not yet");
   console.log(`  Daily log: ${dailyStatus}`);
 
   // This week section
   console.log("");
   console.log(`This week (${thisWeek}):`);
-  const weeklyStatus = hasWeeklyLog
-    ? "done"
-    : dimText("not yet");
+  const weeklyStatus = hasWeeklyLog ? "done" : dimText("not yet");
   console.log(`  Weekly log: ${weeklyStatus}`);
 
   // Missed section
@@ -203,7 +207,11 @@ export function calculateNextAction(
 
   // Need more checkins today
   if (checkinCount < expectedCheckins) {
-    const nextCheckinTime = calculateNextCheckinTime(now, checkins, expectedCheckins);
+    const nextCheckinTime = calculateNextCheckinTime(
+      now,
+      checkins,
+      expectedCheckins,
+    );
     if (nextCheckinTime) {
       return `pulse checkin ${dimText(`(${nextCheckinTime})`)}`;
     }

@@ -4,10 +4,7 @@
  */
 
 import { assertEquals } from "@std/assert";
-import {
-  aggregateRepoMetrics,
-  parseRepoIdentifier,
-} from "../lib/metrics.ts";
+import { aggregateRepoMetrics, parseRepoIdentifier } from "../lib/metrics.ts";
 import { makeRepoMetrics } from "./helpers.ts";
 
 // =============================================================================
@@ -75,12 +72,20 @@ Deno.test("parseRepoIdentifier - github short form owner/repo", () => {
 
 Deno.test("parseRepoIdentifier - github short form with dashes", () => {
   const result = parseRepoIdentifier("my-org/my-repo-name");
-  assertEquals(result, { type: "github", owner: "my-org", repo: "my-repo-name" });
+  assertEquals(result, {
+    type: "github",
+    owner: "my-org",
+    repo: "my-repo-name",
+  });
 });
 
 Deno.test("parseRepoIdentifier - github short form with underscores", () => {
   const result = parseRepoIdentifier("org_name/repo_name");
-  assertEquals(result, { type: "github", owner: "org_name", repo: "repo_name" });
+  assertEquals(result, {
+    type: "github",
+    owner: "org_name",
+    repo: "repo_name",
+  });
 });
 
 // =============================================================================

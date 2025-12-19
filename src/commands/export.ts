@@ -9,7 +9,6 @@ import type {
   DailyCheckins,
   DailyLog,
   Experiment,
-  Violation,
   WeeklyReflection,
 } from "../types/mod.ts";
 import type { Command, ExportArgs } from "../types/commands.ts";
@@ -17,7 +16,6 @@ import {
   getCheckinsDir,
   getDailyDir,
   getDevLogPath,
-  getViolationsPath,
   getWeeklyDir,
 } from "../lib/paths.ts";
 import { fileExists, listFiles, readJson, writeJson } from "../lib/storage.ts";
@@ -31,7 +29,6 @@ interface ExportData {
   checkins: Record<string, DailyCheckins>;
   dailyLogs: Record<string, DailyLog>;
   weeklyReflections: Record<string, WeeklyReflection>;
-  violations: Violation[];
   devLog: string;
 }
 
@@ -120,10 +117,6 @@ async function collectExportData(experiment: Experiment): Promise<ExportData> {
     }
   }
 
-  // Load violations
-  const violationsPath = getViolationsPath(experimentName);
-  const violations = (await readJson<Violation[]>(violationsPath)) ?? [];
-
   // Load dev log
   const devLogPath = getDevLogPath(experimentName);
   let devLog = "";
@@ -142,7 +135,6 @@ async function collectExportData(experiment: Experiment): Promise<ExportData> {
     checkins,
     dailyLogs,
     weeklyReflections,
-    violations,
     devLog,
   };
 }

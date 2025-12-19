@@ -118,13 +118,6 @@ export function getDevLogPath(experimentName: string): string {
 }
 
 /**
- * Get path to violations file
- */
-export function getViolationsPath(experimentName: string): string {
-  return join(getExperimentDir(experimentName), "violations.json");
-}
-
-/**
  * Get path to metrics directory for an experiment
  */
 export function getMetricsDir(experimentName: string): string {
@@ -178,4 +171,3 @@ export function getInitialDirs(): string[] {
     getTemplatesDir(),
   ];
 }
-

@@ -16,14 +16,13 @@ import {
   getDevLogPath,
   getExperimentDir,
   getExperimentPath,
-  getExperimentSubdirs,
   getExperimentsDir,
+  getExperimentSubdirs,
   getInitialDirs,
   getMetricsDir,
   getMetricsPath,
   getTemplatePath,
   getTemplatesDir,
-  getViolationsPath,
   getWeeklyDir,
   getWeeklyPath,
 } from "../lib/paths.ts";
@@ -109,7 +108,10 @@ Deno.test("getTemplatePath - returns template json path", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getTemplatePath("my-template"), "/test/templates/my-template.json");
+    assertEquals(
+      getTemplatePath("my-template"),
+      "/test/templates/my-template.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -141,7 +143,10 @@ Deno.test("getExperimentPath - returns experiment.json path", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getExperimentPath("my-exp"), "/test/experiments/my-exp/experiment.json");
+    assertEquals(
+      getExperimentPath("my-exp"),
+      "/test/experiments/my-exp/experiment.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -173,7 +178,10 @@ Deno.test("getBlockPath - returns block json path with id", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getBlockPath("my-exp", "block-001"), "/test/experiments/my-exp/blocks/block-001.json");
+    assertEquals(
+      getBlockPath("my-exp", "block-001"),
+      "/test/experiments/my-exp/blocks/block-001.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -205,7 +213,10 @@ Deno.test("getCheckinsPath - returns date-based checkins file", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getCheckinsPath("my-exp", "2025-01-15"), "/test/experiments/my-exp/checkins/2025-01-15.json");
+    assertEquals(
+      getCheckinsPath("my-exp", "2025-01-15"),
+      "/test/experiments/my-exp/checkins/2025-01-15.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -237,7 +248,10 @@ Deno.test("getDailyPath - returns date-based daily file", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getDailyPath("my-exp", "2025-01-15"), "/test/experiments/my-exp/daily/2025-01-15.json");
+    assertEquals(
+      getDailyPath("my-exp", "2025-01-15"),
+      "/test/experiments/my-exp/daily/2025-01-15.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -269,7 +283,10 @@ Deno.test("getWeeklyPath - returns week-based weekly file", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getWeeklyPath("my-exp", "2025-W03"), "/test/experiments/my-exp/weekly/2025-W03.json");
+    assertEquals(
+      getWeeklyPath("my-exp", "2025-W03"),
+      "/test/experiments/my-exp/weekly/2025-W03.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -288,20 +305,6 @@ Deno.test("getDevLogPath - returns devlog.md path", () => {
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
     assertEquals(getDevLogPath("my-exp"), "/test/experiments/my-exp/devlog.md");
-  } finally {
-    if (original) {
-      Deno.env.set("PULSE_DATA_DIR", original);
-    } else {
-      Deno.env.delete("PULSE_DATA_DIR");
-    }
-  }
-});
-
-Deno.test("getViolationsPath - returns violations.json path", () => {
-  const original = Deno.env.get("PULSE_DATA_DIR");
-  try {
-    Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getViolationsPath("my-exp"), "/test/experiments/my-exp/violations.json");
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);
@@ -333,7 +336,10 @@ Deno.test("getMetricsPath - returns block-based metrics file", () => {
   const original = Deno.env.get("PULSE_DATA_DIR");
   try {
     Deno.env.set("PULSE_DATA_DIR", "/test");
-    assertEquals(getMetricsPath("my-exp", "block-001"), "/test/experiments/my-exp/metrics/block-001.json");
+    assertEquals(
+      getMetricsPath("my-exp", "block-001"),
+      "/test/experiments/my-exp/metrics/block-001.json",
+    );
   } finally {
     if (original) {
       Deno.env.set("PULSE_DATA_DIR", original);

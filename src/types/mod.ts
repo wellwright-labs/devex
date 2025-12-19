@@ -190,17 +190,6 @@ export interface WeeklyReflection {
 }
 
 // =============================================================================
-// Violation
-// =============================================================================
-
-export interface Violation {
-  id: string;
-  timestamp: Date;
-  block: string;
-  note: string;
-}
-
-// =============================================================================
 // Git Metrics
 // =============================================================================
 
@@ -264,7 +253,6 @@ export interface BlockReport {
   gitMetrics: GitMetrics | null;
   checkinStats: CheckinStats;
   dailyStats: DailyStats;
-  violations: number;
 }
 
 // =============================================================================

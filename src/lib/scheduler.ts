@@ -36,7 +36,9 @@ function getRemindScriptPath(): string {
  * Install reminder scheduler
  * Returns true if successful
  */
-export async function installScheduler(intervalMinutes: number): Promise<boolean> {
+export async function installScheduler(
+  intervalMinutes: number,
+): Promise<boolean> {
   const platform = Deno.build.os;
 
   if (platform === "darwin") {
@@ -88,7 +90,11 @@ async function installLaunchd(intervalMinutes: number): Promise<boolean> {
     const scriptPath = getRemindScriptPath();
 
     // Ensure directories exist
-    const launchAgentsDir = join(Deno.env.get("HOME") || "", "Library", "LaunchAgents");
+    const launchAgentsDir = join(
+      Deno.env.get("HOME") || "",
+      "Library",
+      "LaunchAgents",
+    );
     await ensureDir(launchAgentsDir);
 
     // Create the runner script

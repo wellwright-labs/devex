@@ -80,7 +80,12 @@ async function run(args: DailyArgs): Promise<void> {
 
   console.log("");
   console.log("Ratings (1-5, Enter to skip):");
-  const confidence = await promptRating("  Confidence in today's code", 1, 5, 3);
+  const confidence = await promptRating(
+    "  Confidence in today's code",
+    1,
+    5,
+    3,
+  );
   const understanding = await promptRating(
     "  Understanding of today's code",
     1,

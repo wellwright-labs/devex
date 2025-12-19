@@ -19,7 +19,6 @@ import {
   aggregateDailyLogs,
   loadCheckinsForBlock,
   loadDailyLogsForBlock,
-  loadViolationsForBlock,
 } from "../lib/analysis.ts";
 import { dim, error } from "../lib/format.ts";
 
@@ -55,7 +54,6 @@ interface BlockData {
   gitMetrics: GitMetrics | null;
   checkinStats: CheckinStats;
   dailyStats: DailyStats;
-  violations: number;
 }
 
 async function run(args: CompareArgs): Promise<void> {
@@ -84,7 +82,6 @@ async function run(args: CompareArgs): Promise<void> {
 
     const checkins = await loadCheckinsForBlock(experiment.name, block);
     const dailyLogs = await loadDailyLogsForBlock(experiment.name, block);
-    const violations = await loadViolationsForBlock(experiment.name, blockId);
     const metricsPath = getMetricsPath(experiment.name, blockId);
     const gitMetrics = await readJson<GitMetrics>(metricsPath);
 
@@ -93,7 +90,6 @@ async function run(args: CompareArgs): Promise<void> {
       gitMetrics,
       checkinStats: aggregateCheckins(checkins),
       dailyStats: aggregateDailyLogs(dailyLogs),
-      violations: violations.length,
     });
   }
 
@@ -233,18 +229,6 @@ async function run(args: CompareArgs): Promise<void> {
     true,
   );
   console.log("");
-
-  // Violations
-  printRow(
-    "Violations",
-    a.violations,
-    b.violations,
-    col1,
-    col2,
-    col3,
-    col4,
-  );
-
   console.log("─".repeat(60));
   console.log("");
 

@@ -124,7 +124,9 @@ export function makeWeeklyReflection(
 /**
  * Create a test experiment with sensible defaults
  */
-export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment {
+export function makeExperiment(
+  overrides: Partial<Experiment> = {},
+): Experiment {
   return {
     version: 1,
     name: "test-experiment",
@@ -140,7 +142,9 @@ export function makeExperiment(overrides: Partial<Experiment> = {}): Experiment 
 /**
  * Create test repo metrics with sensible defaults
  */
-export function makeRepoMetrics(overrides: Partial<RepoMetrics> = {}): RepoMetrics {
+export function makeRepoMetrics(
+  overrides: Partial<RepoMetrics> = {},
+): RepoMetrics {
   return {
     commits: 10,
     linesAdded: 100,

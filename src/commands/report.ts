@@ -15,7 +15,6 @@ import {
   aggregateDailyLogs,
   loadCheckinsForBlock,
   loadDailyLogsForBlock,
-  loadViolationsForBlock,
 } from "../lib/analysis.ts";
 import { dim, error, formatDate } from "../lib/format.ts";
 
@@ -69,7 +68,6 @@ async function run(args: ReportArgs): Promise<void> {
   // Load data
   const checkins = await loadCheckinsForBlock(experiment.name, block);
   const dailyLogs = await loadDailyLogsForBlock(experiment.name, block);
-  const violations = await loadViolationsForBlock(experiment.name, block.id);
 
   // Aggregate
   const checkinStats = aggregateCheckins(checkins);
@@ -187,16 +185,6 @@ async function run(args: ReportArgs): Promise<void> {
     }
   }
 
-  // Violations
-  console.log(`VIOLATIONS: ${violations.length}`);
-  if (violations.length > 0) {
-    for (const v of violations.slice(0, 3)) {
-      dim(`  - ${v.note}`);
-    }
-    if (violations.length > 3) {
-      dim(`  ... and ${violations.length - 3} more`);
-    }
-  }
   console.log("");
 }
 
