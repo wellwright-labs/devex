@@ -173,14 +173,14 @@ async function findMissedDailies(
   return missed;
 }
 
-interface CheckinRecord {
+export interface CheckinRecord {
   timestamp: Date;
 }
 
 /**
  * Calculate the next recommended action with timing
  */
-function calculateNextAction(
+export function calculateNextAction(
   now: Date,
   checkinCount: number,
   expectedCheckins: number,
@@ -228,7 +228,7 @@ function calculateNextAction(
  * Calculate when the next checkin should happen
  * Based on spreading checkins across an 8-hour workday (9am-5pm)
  */
-function calculateNextCheckinTime(
+export function calculateNextCheckinTime(
   now: Date,
   checkins: CheckinRecord[],
   expectedCheckins: number,
