@@ -180,6 +180,18 @@ After completing blocks, you have several ways to analyze your data:
 - [x] Milestone 3: Analysis & reporting (metrics, reports, compare)
 - [x] Milestone 4: Polish & completeness (weekly, config, edit, export, status, reminders)
 - [x] Milestone 5: Distribution (JSR, Homebrew, compiled binaries)
+- [ ] Milestone 6: Git metrics accuracy & polish
+  - [ ] Filter git commits by author (currently counts all commits)
+  - [ ] Support configurable branch per repo (currently uses HEAD)
+  - [ ] Add experiment list/switch commands
+  - [ ] Document known limitations
+
+## known limitations
+
+- **Git metrics count all commits**: Currently counts all commits in configured repos during the block timeframe, not just yours. Author filtering coming in Milestone 6.
+- **Branch handling**: Git analysis runs on the current branch (HEAD). No branch configuration yet. This limits accuracy for repos using squash merging or complex branching strategies.
+- **Duplicate repo detection**: If you add the same repo both as a local path and GitHub URL, commits will be double-counted.
+- **Multiple experiments**: You can have multiple experiments, but there's no `list` or `switch` command yet. To switch, edit `activeExperiment` in `~/.config/devex/config.json`.
 
 ## future ideas
 
