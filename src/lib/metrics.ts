@@ -1,5 +1,5 @@
 /**
- * Git metrics computation for Pulse
+ * Git metrics computation for Devex
  * Supports both local git repos (via CLI) and GitHub repos (via API)
  */
 
@@ -190,7 +190,7 @@ export async function computeGitHubRepoMetrics(
 
   const headers: Record<string, string> = {
     Accept: "application/vnd.github.v3+json",
-    "User-Agent": "pulse-cli",
+    "User-Agent": "devex-cli",
   };
 
   if (token) {

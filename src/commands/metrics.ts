@@ -1,5 +1,5 @@
 /**
- * pulse metrics command
+ * devex metrics command
  * Compute and display git metrics for a block
  */
 
@@ -23,7 +23,7 @@ function validate(args: Args): MetricsArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse metrics [options]
+Usage: devex metrics [options]
 
 Compute and display git metrics for a block.
 
@@ -33,9 +33,9 @@ Options:
   --help, -h         Show this help
 
 Examples:
-  pulse metrics
-  pulse metrics --block no-ai-1
-  pulse metrics --refresh
+  devex metrics
+  devex metrics --block no-ai-1
+  devex metrics --refresh
 `);
 }
 
@@ -67,7 +67,7 @@ async function run(args: MetricsArgs): Promise<void> {
   // Check for configured repositories
   if (config.repositories.length === 0) {
     error("No repositories configured.");
-    info("Add repositories with: pulse config add repos <path>");
+    info("Add repositories with: devex config add repos <path>");
     console.log("\nSupported formats:");
     console.log("  Local:  /path/to/repo, ~/repo");
     console.log("  GitHub: owner/repo, https://github.com/owner/repo");
@@ -150,7 +150,7 @@ function displayMetrics(metrics: GitMetrics): void {
 export const metricsCommand: Command<MetricsArgs> = {
   name: "metrics",
   description: "Compute and display git metrics",
-  usage: "pulse metrics [--block <id>] [--refresh]",
+  usage: "devex metrics [--block <id>] [--refresh]",
   parseOptions: {
     string: ["block"],
     boolean: ["help", "refresh"],

@@ -1,5 +1,5 @@
 /**
- * pulse init command
+ * devex init command
  * Creates a new experiment with interactive prompts
  */
 
@@ -64,7 +64,7 @@ function validate(args: Args): InitArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse init [name] [options]
+Usage: devex init [name] [options]
 
 Create a new experiment.
 
@@ -78,9 +78,9 @@ Options:
   --help, -h        Show this help
 
 Examples:
-  pulse init
-  pulse init my-experiment
-  pulse init ai-test --template ai-coding
+  devex init
+  devex init my-experiment
+  devex init ai-test --template ai-coding
 `);
 }
 
@@ -169,7 +169,7 @@ async function setupReminders(frequency: number): Promise<void> {
       `Reminders set: ${timesPerDay}x per workday (every ~${intervalMinutes} min)`,
     );
   } else {
-    dim("Could not set up reminders. You can run 'pulse checkin' manually.");
+    dim("Could not set up reminders. You can run 'devex checkin' manually.");
   }
 }
 
@@ -350,16 +350,16 @@ function printSuccess(
 
   if (conditionNames.length > 0) {
     console.log("Next step:");
-    console.log(`  pulse block start ${conditionNames[0]}`);
+    console.log(`  devex block start ${conditionNames[0]}`);
   } else {
-    console.log("Next step: Add conditions with pulse condition add <name>");
+    console.log("Next step: Add conditions with devex condition add <name>");
   }
 }
 
 export const initCommand: Command<InitArgs> = {
   name: "init",
   description: "Create a new experiment",
-  usage: "pulse init [name] [--template <name>]",
+  usage: "devex init [name] [--template <name>]",
   parseOptions: {
     string: ["template"],
     boolean: ["help"],

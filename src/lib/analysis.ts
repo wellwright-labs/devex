@@ -1,5 +1,5 @@
 /**
- * Analysis and aggregation for Pulse reports
+ * Analysis and aggregation for Devex reports
  * Aggregates checkins and daily logs for block reports
  */
 

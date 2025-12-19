@@ -1,5 +1,5 @@
 /**
- * pulse block command
+ * devex block command
  * Manages work blocks: start, end, status, list, extend
  */
 
@@ -50,7 +50,7 @@ function validate(args: Args): BlockArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse block <subcommand> [options]
+Usage: devex block <subcommand> [options]
 
 Manage work blocks.
 
@@ -67,11 +67,11 @@ Options:
   --help, -h          Show this help
 
 Examples:
-  pulse block start no-ai
-  pulse block start full-ai --duration 7 --tags "sprint-1,focused"
-  pulse block end
-  pulse block status
-  pulse block extend 3
+  devex block start no-ai
+  devex block start full-ai --duration 7 --tags "sprint-1,focused"
+  devex block end
+  devex block status
+  devex block extend 3
 `);
 }
 
@@ -110,7 +110,7 @@ async function blockStart(args: BlockArgs): Promise<void> {
   const currentBlock = await getCurrentBlock();
   if (currentBlock) {
     error(`A block is already active: ${currentBlock.id}`);
-    info("End it first with: pulse block end");
+    info("End it first with: devex block end");
     Deno.exit(1);
   }
 
@@ -171,7 +171,7 @@ async function blockStart(args: BlockArgs): Promise<void> {
     console.log(`  Tags: ${tags.join(", ")}`);
   }
   console.log("");
-  dim("Next: pulse checkin | pulse log <note>");
+  dim("Next: devex checkin | devex log <note>");
 }
 
 async function blockEnd(): Promise<void> {
@@ -224,7 +224,7 @@ async function blockEnd(): Promise<void> {
   success(`Ended block: ${block.id}`);
   console.log(`  Duration: ${getDayInBlock(block)} days`);
   console.log("");
-  dim("Next: pulse report | pulse block start <condition>");
+  dim("Next: devex report | devex block start <condition>");
 }
 
 async function blockStatus(): Promise<void> {
@@ -233,7 +233,7 @@ async function blockStatus(): Promise<void> {
 
   if (!block) {
     info("No active block.");
-    console.log(`\nStart one with: pulse block start <condition>`);
+    console.log(`\nStart one with: devex block start <condition>`);
     console.log(
       `Available conditions: ${Object.keys(experiment.conditions).join(", ")}`,
     );
@@ -282,7 +282,7 @@ async function blockList(): Promise<void> {
 
   if (blocks.length === 0) {
     info("No blocks yet.");
-    console.log(`\nStart one with: pulse block start <condition>`);
+    console.log(`\nStart one with: devex block start <condition>`);
     return;
   }
 
@@ -317,7 +317,7 @@ async function blockExtend(args: BlockArgs): Promise<void> {
   const days = args.days;
   if (!days || isNaN(days) || days <= 0) {
     error("Please specify a positive number of days to extend.");
-    console.log("\nUsage: pulse block extend <days>");
+    console.log("\nUsage: devex block extend <days>");
     Deno.exit(1);
   }
 
@@ -353,7 +353,7 @@ function printConditionDetails(name: string, condition: Condition): void {
 export const blockCommand: Command<BlockArgs> = {
   name: "block",
   description: "Manage work blocks",
-  usage: "pulse block <start|end|status|list|extend> [options]",
+  usage: "devex block <start|end|status|list|extend> [options]",
   parseOptions: {
     string: ["tags"],
     boolean: ["help"],

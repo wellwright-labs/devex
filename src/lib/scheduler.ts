@@ -6,7 +6,7 @@
 import { join } from "@std/path";
 import { ensureDir, fileExists } from "./storage.ts";
 
-const LAUNCHD_LABEL = "com.pulse.remind";
+const LAUNCHD_LABEL = "com.devex.remind";
 
 /**
  * Calculate interval in minutes from checkinFrequency (per 8-hour day)
@@ -29,7 +29,7 @@ function getLaunchdPlistPath(): string {
  */
 function getRemindScriptPath(): string {
   const home = Deno.env.get("HOME") || "";
-  return join(home, ".config", "pulse", "remind-runner.sh");
+  return join(home, ".config", "devex", "remind-runner.sh");
 }
 
 /**
@@ -100,11 +100,11 @@ async function installLaunchd(intervalMinutes: number): Promise<boolean> {
     // Create the runner script
     // Checks for active block before sending notification
     const remindScript = `#!/bin/bash
-# Pulse reminder runner
-PULSE_DIR="$HOME/.config/pulse"
-CONFIG="$PULSE_DIR/config.json"
+# Devex reminder runner
+DEVEX_DIR="$HOME/.config/devex"
+CONFIG="$DEVEX_DIR/config.json"
 
-# Check if pulse is set up and has an active experiment
+# Check if devex is set up and has an active experiment
 if [ ! -f "$CONFIG" ]; then
   exit 0
 fi
@@ -116,7 +116,7 @@ if [ -z "$ACTIVE" ] || [ "$ACTIVE" = "null" ]; then
 fi
 
 # Check if there's an active block (any block file without endDate)
-BLOCKS_DIR="$PULSE_DIR/experiments/$ACTIVE/blocks"
+BLOCKS_DIR="$DEVEX_DIR/experiments/$ACTIVE/blocks"
 if [ ! -d "$BLOCKS_DIR" ]; then
   exit 0
 fi
@@ -132,7 +132,7 @@ for block in "$BLOCKS_DIR"/*.json; do
 done
 
 if [ "$HAS_ACTIVE_BLOCK" = "true" ]; then
-  osascript -e 'display notification "Time for a quick check-in. Run: pulse checkin" with title "Pulse"' 2>/dev/null
+  osascript -e 'display notification "Time for a quick check-in. Run: devex checkin" with title "Devex"' 2>/dev/null
 fi
 `;
 
@@ -216,10 +216,10 @@ async function installCron(intervalMinutes: number): Promise<boolean> {
     const { stdout } = await getCron.output();
     let crontab = new TextDecoder().decode(stdout);
 
-    // Remove any existing pulse entries
+    // Remove any existing devex entries
     crontab = crontab
       .split("\n")
-      .filter((line) => !line.includes("# pulse-remind"))
+      .filter((line) => !line.includes("# devex-remind"))
       .join("\n");
 
     // Calculate cron schedule (approximate the interval during work hours)
@@ -235,16 +235,16 @@ async function installCron(intervalMinutes: number): Promise<boolean> {
     // Add new entry - uses a script to check for active block first
     const scriptPath = getRemindScriptPath().replace(/\.sh$/, "-linux.sh");
     const script = `#!/bin/bash
-# Pulse reminder runner (Linux)
-PULSE_DIR="$HOME/.config/pulse"
-CONFIG="$PULSE_DIR/config.json"
+# Devex reminder runner (Linux)
+DEVEX_DIR="$HOME/.config/devex"
+CONFIG="$DEVEX_DIR/config.json"
 
 [ -f "$CONFIG" ] || exit 0
 
 ACTIVE=$(grep -o '"activeExperiment"[[:space:]]*:[[:space:]]*"[^"]*"' "$CONFIG" 2>/dev/null | cut -d'"' -f4)
 [ -z "$ACTIVE" ] || [ "$ACTIVE" = "null" ] && exit 0
 
-BLOCKS_DIR="$PULSE_DIR/experiments/$ACTIVE/blocks"
+BLOCKS_DIR="$DEVEX_DIR/experiments/$ACTIVE/blocks"
 [ -d "$BLOCKS_DIR" ] || exit 0
 
 for block in "$BLOCKS_DIR"/*.json; do
@@ -252,7 +252,7 @@ for block in "$BLOCKS_DIR"/*.json; do
   if ! grep -q '"endDate"' "$block" 2>/dev/null; then
     # Has active block, send notification
     if command -v notify-send >/dev/null 2>&1; then
-      notify-send "Pulse" "Time for a quick check-in. Run: pulse checkin"
+      notify-send "Devex" "Time for a quick check-in. Run: devex checkin"
     fi
     exit 0
   fi
@@ -261,7 +261,7 @@ done
     await Deno.writeTextFile(scriptPath, script);
     await Deno.chmod(scriptPath, 0o755);
 
-    const entry = `${schedule} ${scriptPath} # pulse-remind`;
+    const entry = `${schedule} ${scriptPath} # devex-remind`;
     crontab = crontab.trim() + "\n" + entry + "\n";
 
     // Write new crontab
@@ -294,10 +294,10 @@ async function uninstallCron(): Promise<boolean> {
     const { stdout } = await getCron.output();
     let crontab = new TextDecoder().decode(stdout);
 
-    // Remove pulse entries
+    // Remove devex entries
     crontab = crontab
       .split("\n")
-      .filter((line) => !line.includes("# pulse-remind"))
+      .filter((line) => !line.includes("# devex-remind"))
       .join("\n");
 
     // Write new crontab
@@ -334,7 +334,7 @@ async function isCronInstalled(): Promise<boolean> {
     });
     const { stdout } = await getCron.output();
     const crontab = new TextDecoder().decode(stdout);
-    return crontab.includes("# pulse-remind");
+    return crontab.includes("# devex-remind");
   } catch {
     return false;
   }

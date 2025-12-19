@@ -1,53 +1,53 @@
-# pulse
+# devex
 
 A CLI for developers to run structured self-experiments on their workflow, productivity, and experience.
 
 Define hypotheses, work in time-boxed blocks under different conditions, and collect both subjective (checkins, reflections) and objective (git metrics) data to evaluate your hypotheses.
 
-While `pulse` ships with a default "AI-assisted coding" experiment template (and is ultimately the original purpose), it is designed to support any workflow experiment: editor changes, work schedule variations, music/environment, methodology shifts, etc.
+While `devex` ships with a default "AI-assisted coding" experiment template (and is ultimately the original purpose), it is designed to support any workflow experiment: editor changes, work schedule variations, music/environment, methodology shifts, etc.
 
 ## quick start
 
 ```bash
 # Create an experiment
-pulse init
+devex init
 
 # Start a block under a condition
-pulse block start no-ai
+devex block start no-ai
 
 # Throughout the day
-pulse status              # See dashboard and what's due
-pulse checkin             # Quick check-in (3x/day recommended)
-pulse log "Fixed the auth bug"  # Freeform notes
+devex status              # See dashboard and what's due
+devex checkin             # Quick check-in (3x/day recommended)
+devex log "Fixed the auth bug"  # Freeform notes
 
 # End of day
-pulse daily
+devex daily
 
 # End of week
-pulse weekly
+devex weekly
 
 # End of block
-pulse block end
-pulse report              # See analysis
+devex block end
+devex report              # See analysis
 ```
 
 ## commands
 
 | Command | Description |
 |---------|-------------|
-| `pulse status` | Dashboard showing progress and next actions |
-| `pulse init` | Create a new experiment (sets up reminders too) |
-| `pulse block start/end/list` | Manage time-boxed work blocks |
-| `pulse checkin` | Quick check-in (energy, focus, stuck) |
-| `pulse daily` | End-of-day reflection |
-| `pulse weekly` | End-of-week reflection |
-| `pulse log [msg]` | Append to dev log |
-| `pulse config` | Manage settings |
-| `pulse edit <target>` | Open data files in $EDITOR |
-| `pulse metrics` | Compute git metrics for a block |
-| `pulse report` | Generate analysis report |
-| `pulse compare` | Compare metrics between blocks |
-| `pulse export` | Export all data as JSON |
+| `devex status` | Dashboard showing progress and next actions |
+| `devex init` | Create a new experiment (sets up reminders too) |
+| `devex block start/end/list` | Manage time-boxed work blocks |
+| `devex checkin` | Quick check-in (energy, focus, stuck) |
+| `devex daily` | End-of-day reflection |
+| `devex weekly` | End-of-week reflection |
+| `devex log [msg]` | Append to dev log |
+| `devex config` | Manage settings |
+| `devex edit <target>` | Open data files in $EDITOR |
+| `devex metrics` | Compute git metrics for a block |
+| `devex report` | Generate analysis report |
+| `devex compare` | Compare metrics between blocks |
+| `devex export` | Export all data as JSON |
 
 ## roadmap
 
@@ -59,7 +59,13 @@ pulse report              # See analysis
 
 ## future ideas
 
-- **AI observability** - Hook into agents and record prompt inputs, timestamps, tokens, etc.
+### prioritized
+
+- **AI observability** - Hook into LLM/agent prompts for reflection. Record inputs, timestamps, tokens to a local database for analysis and pattern recognition.
+- **Metrics upload** - Optional upload to a hosted site for aggregated insights. Privacy-preserving: no code or logs, just metrics. Manual form or automated CLI integration.
+
+### exploratory
+
 - **Streaks & insights** - Track consistency, surface patterns automatically
 - **Cross-experiment comparison** - Compare results across different experiments
 - **IDE integration** - VS Code extension for in-editor check-ins

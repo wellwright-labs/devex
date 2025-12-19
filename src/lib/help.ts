@@ -1,20 +1,20 @@
 /**
- * Help text generation for Pulse CLI
+ * Help text generation for Devex CLI
  */
 
 import { VERSION } from "./version.ts";
 import { getDataDir } from "./paths.ts";
 
 export function showVersion(): void {
-  console.log(`pulse v${VERSION}`);
+  console.log(`devex v${VERSION}`);
 }
 
 export function showHelp(): void {
   console.log(`
-pulse v${VERSION} — Developer self-experiment toolkit
+devex v${VERSION} — Developer self-experiment toolkit
 
 Usage:
-  pulse <command> [options]
+  devex <command> [options]
 
 Commands:
   init [name]       Create a new experiment
@@ -38,20 +38,20 @@ Options:
   --version, -v     Show version
 
 Examples:
-  pulse status                  Show progress dashboard
-  pulse init                    Create a new experiment interactively
-  pulse block start no-ai       Start a block under "no-ai" condition
-  pulse checkin                 Log a checkin for current block
-  pulse daily                   Log today's reflection
-  pulse weekly                  Log this week's reflection
-  pulse edit daily              Edit today's daily log
-  pulse config list             Show current configuration
-  pulse export -o backup.json   Export all data to file
-  pulse git status              Show git status of data directory
-  pulse sync                    Commit and push all changes
-  pulse metrics                 Compute git metrics for current block
-  pulse report                  Generate report for current block
-  pulse compare no-ai-1 ai-1    Compare two blocks
+  devex status                  Show progress dashboard
+  devex init                    Create a new experiment interactively
+  devex block start no-ai       Start a block under "no-ai" condition
+  devex checkin                 Log a checkin for current block
+  devex daily                   Log today's reflection
+  devex weekly                  Log this week's reflection
+  devex edit daily              Edit today's daily log
+  devex config list             Show current configuration
+  devex export -o backup.json   Export all data to file
+  devex git status              Show git status of data directory
+  devex sync                    Commit and push all changes
+  devex metrics                 Compute git metrics for current block
+  devex report                  Generate report for current block
+  devex compare no-ai-1 ai-1    Compare two blocks
 
 Data stored in: ${getDataDir()}
 `);

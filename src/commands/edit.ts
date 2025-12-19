@@ -1,5 +1,5 @@
 /**
- * pulse edit command
+ * devex edit command
  * Open data files in the user's editor
  */
 
@@ -29,7 +29,7 @@ function validate(args: Args): EditArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse edit <target> [identifier]
+Usage: devex edit <target> [identifier]
 
 Open data files in $EDITOR.
 
@@ -45,12 +45,12 @@ Options:
   --help, -h          Show this help
 
 Examples:
-  pulse edit daily                    # Edit today's daily log
-  pulse edit daily 2025-01-15         # Edit specific date
-  pulse edit weekly                   # Edit this week's reflection
-  pulse edit weekly 2025-W03          # Edit specific week
-  pulse edit block no-ai-1            # Edit block definition
-  pulse edit config                   # Edit global config
+  devex edit daily                    # Edit today's daily log
+  devex edit daily 2025-01-15         # Edit specific date
+  devex edit weekly                   # Edit this week's reflection
+  devex edit weekly 2025-W03          # Edit specific week
+  devex edit block no-ai-1            # Edit block definition
+  devex edit config                   # Edit global config
 `);
 }
 
@@ -62,7 +62,7 @@ async function run(args: EditArgs): Promise<void> {
 
   if (!args.target) {
     error("Please specify a target to edit.");
-    info("Run 'pulse edit --help' for available targets.");
+    info("Run 'devex edit --help' for available targets.");
     return;
   }
 
@@ -75,11 +75,11 @@ async function run(args: EditArgs): Promise<void> {
   if (!(await fileExists(path))) {
     error(`File not found: ${path}`);
     if (args.target === "daily") {
-      info("Create a daily log first with: pulse daily");
+      info("Create a daily log first with: devex daily");
     } else if (args.target === "weekly") {
-      info("Create a weekly reflection first with: pulse weekly");
+      info("Create a weekly reflection first with: devex weekly");
     } else if (args.target === "checkin") {
-      info("Create a check-in first with: pulse checkin");
+      info("Create a check-in first with: devex checkin");
     }
     return;
   }
@@ -122,7 +122,7 @@ async function resolveTargetPath(
 
     case "block": {
       if (!identifier) {
-        error("Block name required. Usage: pulse edit block <name>");
+        error("Block name required. Usage: devex edit block <name>");
         return null;
       }
       const experiment = await requireExperiment();
@@ -131,7 +131,7 @@ async function resolveTargetPath(
 
     default:
       error(`Unknown target: ${target}`);
-      info("Run 'pulse edit --help' for available targets.");
+      info("Run 'devex edit --help' for available targets.");
       return null;
   }
 }
@@ -155,7 +155,7 @@ async function openInEditor(path: string): Promise<void> {
 export const editCommand: Command<EditArgs> = {
   name: "edit",
   description: "Open data files in editor",
-  usage: "pulse edit <target> [identifier]",
+  usage: "devex edit <target> [identifier]",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

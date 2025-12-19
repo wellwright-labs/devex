@@ -18,7 +18,7 @@ import { join } from "@std/path";
 
 // Helper to create a temp directory for tests
 async function createTempDir(): Promise<string> {
-  return await Deno.makeTempDir({ prefix: "pulse_test_" });
+  return await Deno.makeTempDir({ prefix: "devex_test_" });
 }
 
 // Helper to clean up temp directory

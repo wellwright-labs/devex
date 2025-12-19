@@ -1,5 +1,5 @@
 /**
- * Interactive prompt utilities for Pulse
+ * Interactive prompt utilities for Devex
  * Uses TTY utilities for better UX when available, falls back to basic prompts
  */
 

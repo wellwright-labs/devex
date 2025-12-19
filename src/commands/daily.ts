@@ -1,5 +1,5 @@
 /**
- * pulse daily command
+ * devex daily command
  * End-of-day reflection log
  */
 
@@ -33,7 +33,7 @@ function validate(args: Args): DailyArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse daily [options]
+Usage: devex daily [options]
 
 Log end-of-day reflection for the current block.
 
@@ -41,7 +41,7 @@ Options:
   --help, -h    Show this help
 
 Examples:
-  pulse daily
+  devex daily
 `);
 }
 
@@ -62,7 +62,7 @@ async function run(args: DailyArgs): Promise<void> {
   const dailyPath = getDailyPath(experiment.name, today);
   if (await fileExists(dailyPath)) {
     warn(`Daily log for ${today} already exists.`);
-    info("Use 'pulse edit daily' to modify it.");
+    info("Use 'devex edit daily' to modify it.");
     return;
   }
 
@@ -136,7 +136,7 @@ async function run(args: DailyArgs): Promise<void> {
   console.log("");
   success("Daily log saved");
   console.log("");
-  dim("Next: pulse weekly (end of week) | pulse block status");
+  dim("Next: devex weekly (end of week) | devex block status");
 }
 
 function parseTaskTypes(input: string): TaskType[] {
@@ -159,7 +159,7 @@ function parseTaskTypes(input: string): TaskType[] {
 export const dailyCommand: Command<DailyArgs> = {
   name: "daily",
   description: "Log end-of-day reflection",
-  usage: "pulse daily",
+  usage: "devex daily",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

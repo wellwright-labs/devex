@@ -1,17 +1,17 @@
 /**
- * Path utilities for Pulse data directory
- * All paths are absolute and resolve to ~/.config/pulse by default
+ * Path utilities for Devex data directory
+ * All paths are absolute and resolve to ~/.config/devex by default
  */
 
 import { join } from "@std/path";
 
 /**
- * Get the Pulse data directory
- * Default: ~/.config/pulse
- * Can be overridden with PULSE_DATA_DIR environment variable
+ * Get the Devex data directory
+ * Default: ~/.config/devex
+ * Can be overridden with DEVEX_DATA_DIR environment variable
  */
 export function getDataDir(): string {
-  const override = Deno.env.get("PULSE_DATA_DIR");
+  const override = Deno.env.get("DEVEX_DATA_DIR");
   if (override) {
     return override;
   }
@@ -23,7 +23,7 @@ export function getDataDir(): string {
     );
   }
 
-  return join(home, ".config", "pulse");
+  return join(home, ".config", "devex");
 }
 
 /**

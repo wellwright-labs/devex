@@ -1,5 +1,5 @@
 /**
- * Pulse CLI entry point
+ * Devex CLI entry point
  * Routes commands to their handlers
  */
 
@@ -74,7 +74,7 @@ async function main(): Promise<void> {
 
   if (!command) {
     error(`Unknown command: ${commandName}`);
-    console.log("\nRun 'pulse --help' for usage information.");
+    console.log("\nRun 'devex --help' for usage information.");
     Deno.exit(1);
   }
 

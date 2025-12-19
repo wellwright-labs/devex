@@ -1,5 +1,5 @@
 /**
- * pulse compare command
+ * devex compare command
  * Compare metrics and stats between blocks
  */
 
@@ -34,7 +34,7 @@ function validate(args: Args): CompareArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse compare <block1> <block2>
+Usage: devex compare <block1> <block2>
 
 Compare metrics and stats between two blocks.
 
@@ -45,7 +45,7 @@ Options:
   --help, -h        Show this help
 
 Examples:
-  pulse compare no-ai-1 full-ai-1
+  devex compare no-ai-1 full-ai-1
 `);
 }
 
@@ -299,7 +299,7 @@ function printRow(
 export const compareCommand: Command<CompareArgs> = {
   name: "compare",
   description: "Compare metrics between blocks",
-  usage: "pulse compare <block1> <block2>",
+  usage: "devex compare <block1> <block2>",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

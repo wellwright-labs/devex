@@ -1,5 +1,5 @@
 /**
- * pulse weekly command
+ * devex weekly command
  * Weekly reflection log
  */
 
@@ -33,7 +33,7 @@ function validate(args: Args): WeeklyArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse weekly [options]
+Usage: devex weekly [options]
 
 Log weekly reflection for the current block.
 
@@ -41,7 +41,7 @@ Options:
   --help, -h    Show this help
 
 Examples:
-  pulse weekly
+  devex weekly
 `);
 }
 
@@ -61,7 +61,7 @@ async function run(args: WeeklyArgs): Promise<void> {
   const weeklyPath = getWeeklyPath(experiment.name, weekId);
   if (await fileExists(weeklyPath)) {
     warn(`Weekly reflection for ${weekId} already exists.`);
-    info("Use 'pulse edit weekly' to modify it.");
+    info("Use 'devex edit weekly' to modify it.");
     return;
   }
 
@@ -125,13 +125,13 @@ async function run(args: WeeklyArgs): Promise<void> {
   console.log("");
   success("Weekly reflection saved");
   console.log("");
-  dim("Next: pulse report | pulse block status");
+  dim("Next: devex report | devex block status");
 }
 
 export const weeklyCommand: Command<WeeklyArgs> = {
   name: "weekly",
   description: "Log weekly reflection",
-  usage: "pulse weekly",
+  usage: "devex weekly",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

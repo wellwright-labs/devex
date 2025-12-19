@@ -1,5 +1,5 @@
 /**
- * pulse status command
+ * devex status command
  * Dashboard view of experiment progress
  */
 
@@ -31,7 +31,7 @@ function validate(args: Args): StatusArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse status [options]
+Usage: devex status [options]
 
 Show experiment dashboard with progress and next actions.
 
@@ -39,7 +39,7 @@ Options:
   --help, -h    Show this help
 
 Examples:
-  pulse status
+  devex status
 `);
 }
 
@@ -55,7 +55,7 @@ async function run(args: StatusArgs): Promise<void> {
   if (!block) {
     info("No active block.");
     console.log("");
-    console.log(`Start one with: pulse block start <condition>`);
+    console.log(`Start one with: devex block start <condition>`);
     console.log(
       `Available conditions: ${Object.keys(experiment.conditions).join(", ")}`,
     );
@@ -197,12 +197,12 @@ export function calculateNextAction(
 
   // End of day (after 5pm) - suggest daily if not done
   if (hour >= 17 && !hasDailyLog) {
-    return "pulse daily";
+    return "devex daily";
   }
 
   // Friday or later in the week - suggest weekly if not done
   if (dayOfWeek >= 5 && !hasWeeklyLog) {
-    return "pulse weekly";
+    return "devex weekly";
   }
 
   // Need more checkins today
@@ -213,19 +213,19 @@ export function calculateNextAction(
       expectedCheckins,
     );
     if (nextCheckinTime) {
-      return `pulse checkin ${dimText(`(${nextCheckinTime})`)}`;
+      return `devex checkin ${dimText(`(${nextCheckinTime})`)}`;
     }
-    return "pulse checkin";
+    return "devex checkin";
   }
 
   // All checkins done, daily not done
   if (!hasDailyLog) {
-    return `pulse daily ${dimText("(end of day)")}`;
+    return `devex daily ${dimText("(end of day)")}`;
   }
 
   // Weekly not done
   if (!hasWeeklyLog) {
-    return `pulse weekly ${dimText("(end of week)")}`;
+    return `devex weekly ${dimText("(end of week)")}`;
   }
 
   // All caught up!
@@ -287,7 +287,7 @@ export function calculateNextCheckinTime(
 export const statusCommand: Command<StatusArgs> = {
   name: "status",
   description: "Show experiment dashboard",
-  usage: "pulse status",
+  usage: "devex status",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

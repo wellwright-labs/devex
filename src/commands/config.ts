@@ -1,5 +1,5 @@
 /**
- * pulse config command
+ * devex config command
  * Manage global configuration
  */
 
@@ -43,7 +43,7 @@ function validate(args: Args): ConfigArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse config [subcommand] [options]
+Usage: devex config [subcommand] [options]
 
 Manage global configuration.
 
@@ -67,11 +67,11 @@ Config Keys:
   git.commitOnWeeklyReflection   Commit on weekly reflection (true/false)
 
 Examples:
-  pulse config                   # Open in editor
-  pulse config list              # Show current config
-  pulse config set defaults.blockDuration 7
-  pulse config add repos ~/projects/my-app
-  pulse config remove repos ~/projects/old-app
+  devex config                   # Open in editor
+  devex config list              # Show current config
+  devex config set defaults.blockDuration 7
+  devex config add repos ~/projects/my-app
+  devex config remove repos ~/projects/old-app
 `);
 }
 
@@ -102,7 +102,7 @@ async function run(args: ConfigArgs): Promise<void> {
       break;
     default:
       error(`Unknown subcommand: ${args.subcommand}`);
-      info("Run 'pulse config --help' for usage.");
+      info("Run 'devex config --help' for usage.");
   }
 }
 
@@ -133,7 +133,7 @@ async function setConfigValue(
   value: string | undefined,
 ): Promise<void> {
   if (!key || value === undefined) {
-    error("Usage: pulse config set <key> <value>");
+    error("Usage: devex config set <key> <value>");
     Deno.exit(1);
   }
 
@@ -173,7 +173,7 @@ async function addRepoPath(
   path: string | undefined,
 ): Promise<void> {
   if (target !== "repos" || !path) {
-    error("Usage: pulse config add repos <path>");
+    error("Usage: devex config add repos <path>");
     Deno.exit(1);
   }
 
@@ -195,7 +195,7 @@ async function removeRepoPath(
   path: string | undefined,
 ): Promise<void> {
   if (target !== "repos" || !path) {
-    error("Usage: pulse config remove repos <path>");
+    error("Usage: devex config remove repos <path>");
     Deno.exit(1);
   }
 
@@ -224,7 +224,7 @@ async function removeRepoPath(
 export const configCommand: Command<ConfigArgs> = {
   name: "config",
   description: "Manage global configuration",
-  usage: "pulse config [subcommand]",
+  usage: "devex config [subcommand]",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

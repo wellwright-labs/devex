@@ -1,5 +1,5 @@
 /**
- * pulse checkin command
+ * devex checkin command
  * Quick micro checkin during work blocks
  */
 
@@ -36,7 +36,7 @@ function validate(args: Args): CheckinArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse checkin [options]
+Usage: devex checkin [options]
 
 Log a quick checkin for the current block.
 
@@ -45,8 +45,8 @@ Options:
   --help, -h     Show this help
 
 Examples:
-  pulse checkin
-  pulse checkin --quick
+  devex checkin
+  devex checkin --quick
 `);
 }
 
@@ -139,13 +139,13 @@ async function run(args: CheckinArgs): Promise<void> {
   }
 
   console.log("");
-  dim("Next: pulse daily (end of day) | pulse checkin (another checkin)");
+  dim("Next: devex daily (end of day) | devex checkin (another checkin)");
 }
 
 export const checkinCommand: Command<CheckinArgs> = {
   name: "checkin",
   description: "Log a quick checkin",
-  usage: "pulse checkin [--quick]",
+  usage: "devex checkin [--quick]",
   parseOptions: {
     boolean: ["quick", "help"],
     alias: { q: "quick", h: "help" },

@@ -1,5 +1,5 @@
 /**
- * pulse git command
+ * devex git command
  * Passthrough to git in the data directory
  */
 
@@ -21,18 +21,18 @@ function validate(args: Args): GitArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse git <git-args>
+Usage: devex git <git-args>
 
-Run git commands in the Pulse data directory.
+Run git commands in the Devex data directory.
 
 All arguments are passed directly to git.
 
 Examples:
-  pulse git status
-  pulse git log --oneline -5
-  pulse git diff
-  pulse git remote add origin <url>
-  pulse git push
+  devex git status
+  devex git log --oneline -5
+  devex git diff
+  devex git remote add origin <url>
+  devex git push
 `);
 }
 
@@ -51,8 +51,8 @@ async function run(args: GitArgs): Promise<void> {
 
   // Check if data dir is a git repo
   if (!(await isGitRepository(dataDir))) {
-    error("Pulse data directory is not a git repository.");
-    info("Run 'pulse init' to create an experiment and initialize git.");
+    error("Devex data directory is not a git repository.");
+    info("Run 'devex init' to create an experiment and initialize git.");
     Deno.exit(1);
   }
 
@@ -74,8 +74,8 @@ async function run(args: GitArgs): Promise<void> {
 
 export const gitCommand: Command<GitArgs> = {
   name: "git",
-  description: "Run git commands in Pulse data directory",
-  usage: "pulse git <git-args>",
+  description: "Run git commands in Devex data directory",
+  usage: "devex git <git-args>",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },

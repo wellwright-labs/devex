@@ -1,5 +1,5 @@
 /**
- * pulse report command
+ * devex report command
  * Generate analysis report for a block
  */
 
@@ -27,7 +27,7 @@ function validate(args: Args): ReportArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse report [options]
+Usage: devex report [options]
 
 Generate analysis report for a block.
 
@@ -36,8 +36,8 @@ Options:
   --help, -h         Show this help
 
 Examples:
-  pulse report
-  pulse report --block no-ai-1
+  devex report
+  devex report --block no-ai-1
 `);
 }
 
@@ -110,7 +110,7 @@ async function run(args: ReportArgs): Promise<void> {
     );
     console.log("");
   } else if (config.repositories.length > 0) {
-    dim("GIT METRICS: Run 'pulse metrics' to compute");
+    dim("GIT METRICS: Run 'devex metrics' to compute");
     console.log("");
   }
 
@@ -191,7 +191,7 @@ async function run(args: ReportArgs): Promise<void> {
 export const reportCommand: Command<ReportArgs> = {
   name: "report",
   description: "Generate analysis report for a block",
-  usage: "pulse report [--block <id>]",
+  usage: "devex report [--block <id>]",
   parseOptions: {
     string: ["block"],
     boolean: ["help"],

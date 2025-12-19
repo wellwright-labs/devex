@@ -15,17 +15,17 @@ implemented arrow-key navigation and better UX without adding dependencies:
 
 ### reminder system
 check-in reminders via launchd (macOS) or cron (Linux):
-- integrated into `pulse init` ("Set up check-in reminders?")
+- integrated into `devex init` ("Set up check-in reminders?")
 - shell scripts that only notify when there's an active block
 - respects checkinFrequency config (default: 3x per workday)
 - native OS notifications via osascript/notify-send
 
 ### new commands
-- `pulse status` - dashboard with smart "Next" recommendation and timing
-- `pulse weekly` - weekly reflection prompts
-- `pulse config` - manage settings (list, set, add/remove repos)
-- `pulse edit` - open data files in $EDITOR
-- `pulse export` - export all experiment data as JSON
+- `devex status` - dashboard with smart "Next" recommendation and timing
+- `devex weekly` - weekly reflection prompts
+- `devex config` - manage settings (list, set, add/remove repos)
+- `devex edit` - open data files in $EDITOR
+- `devex export` - export all experiment data as JSON
 
 ### bug fixes
 - git repo now always initialized (was only on first run)

@@ -1,5 +1,5 @@
 /**
- * Git operations for Pulse data directory
+ * Git operations for Devex data directory
  * Uses Deno.Command to shell out to git
  */
 

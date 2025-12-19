@@ -1,5 +1,5 @@
 /**
- * State management for Pulse
+ * State management for Devex
  * Resolves current experiment and block from config and data files
  */
 
@@ -18,7 +18,7 @@ import { listDirs, listFiles, readJson } from "./storage.ts";
  */
 export class NoExperimentError extends Error {
   constructor() {
-    super("No active experiment. Create one with: pulse init");
+    super("No active experiment. Create one with: devex init");
     this.name = "NoExperimentError";
   }
 }
@@ -32,7 +32,7 @@ export class NoBlockError extends Error {
       ? `\n\nAvailable conditions: ${conditions.join(", ")}`
       : "";
     super(
-      `No active block. Start one with: pulse block start <condition>${conditionList}`,
+      `No active block. Start one with: devex block start <condition>${conditionList}`,
     );
     this.name = "NoBlockError";
   }

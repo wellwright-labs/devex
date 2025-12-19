@@ -1,5 +1,5 @@
 /**
- * Configuration management for Pulse
+ * Configuration management for Devex
  * Handles loading, saving, and merging config from defaults and user settings
  */
 

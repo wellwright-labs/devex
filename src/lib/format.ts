@@ -1,5 +1,5 @@
 /**
- * Output formatting utilities for Pulse
+ * Output formatting utilities for Devex
  * Provides consistent styled output for the CLI
  */
 

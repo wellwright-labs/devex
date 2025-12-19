@@ -1,5 +1,5 @@
 /**
- * Shared test utilities for Pulse
+ * Shared test utilities for Devex
  * Factory functions and test environment helpers
  */
 
@@ -18,23 +18,23 @@ import type {
 // =============================================================================
 
 /**
- * Create a test environment with temp directory and PULSE_DATA_DIR override
+ * Create a test environment with temp directory and DEVEX_DATA_DIR override
  */
 export async function createTestEnvironment(): Promise<{
   dataDir: string;
   cleanup: () => Promise<void>;
 }> {
-  const dataDir = await Deno.makeTempDir({ prefix: "pulse_test_" });
-  const originalDataDir = Deno.env.get("PULSE_DATA_DIR");
-  Deno.env.set("PULSE_DATA_DIR", dataDir);
+  const dataDir = await Deno.makeTempDir({ prefix: "devex_test_" });
+  const originalDataDir = Deno.env.get("DEVEX_DATA_DIR");
+  Deno.env.set("DEVEX_DATA_DIR", dataDir);
 
   return {
     dataDir,
     cleanup: async () => {
       if (originalDataDir) {
-        Deno.env.set("PULSE_DATA_DIR", originalDataDir);
+        Deno.env.set("DEVEX_DATA_DIR", originalDataDir);
       } else {
-        Deno.env.delete("PULSE_DATA_DIR");
+        Deno.env.delete("DEVEX_DATA_DIR");
       }
       try {
         await Deno.remove(dataDir, { recursive: true });
@@ -49,7 +49,7 @@ export async function createTestEnvironment(): Promise<{
  * Create a temp directory for tests (simpler version)
  */
 export async function createTempDir(): Promise<string> {
-  return await Deno.makeTempDir({ prefix: "pulse_test_" });
+  return await Deno.makeTempDir({ prefix: "devex_test_" });
 }
 
 /**

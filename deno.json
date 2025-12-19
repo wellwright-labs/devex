@@ -1,16 +1,24 @@
 {
-  "name": "@wellwright/pulse",
+  "name": "@wellwright/devex",
   "version": "0.1.0",
   "exports": "./src/main.ts",
+  "publish": {
+    "include": ["src/**/*.ts", "LICENSE", "README.md", "deno.json"],
+    "exclude": ["src/**/*.test.ts", "src/__test__/**"]
+  },
   "fmt": {
-    "exclude": ["*.md", "docs/"]
+    "exclude": ["*.md", "docs/", ".zed/", "dist/"]
+  },
+  "lint": {
+    "exclude": ["dist/"]
   },
   "tasks": {
     "dev": "deno run --allow-read --allow-write --allow-run --allow-env src/main.ts",
     "test": "deno test --allow-read --allow-write --allow-env --allow-run",
     "check": "deno check src/main.ts",
-    "compile": "deno compile --allow-read --allow-write --allow-run --allow-env --output pulse src/main.ts",
-    "clean": "rm -rf ~/.config/pulse && echo 'Cleaned ~/.config/pulse'"
+    "compile": "deno compile --allow-read --allow-write --allow-run --allow-env --output dist/devex src/main.ts",
+    "build": "deno task check && deno task test && deno task compile",
+    "clean": "rm -rf ~/.config/devex dist && echo 'Cleaned ~/.config/devex and dist/'"
   },
   "imports": {
     "@std/cli": "jsr:@std/cli@^1.0.0",

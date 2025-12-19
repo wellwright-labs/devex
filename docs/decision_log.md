@@ -1,6 +1,6 @@
 # Decision Log
 
-Architectural and design decisions for Pulse, with rationale.
+Architectural and design decisions for Devex, with rationale.
 
 ---
 
@@ -45,25 +45,25 @@ Use `Date` objects in all runtime TypeScript types. The storage layer handles se
 
 ### Context
 
-The original spec included an "in-repo mode" (`pulse init --in-repo`) that would:
-- Create a `.pulse/` directory in the current repo
+The original spec included an "in-repo mode" (`devex init --in-repo`) that would:
+- Create a `.devex/` directory in the current repo
 - Add it to `.gitignore`
 - Link that experiment to the repo's git history for metrics
 
 ### Decision
 
-Remove in-repo mode entirely. All experiments live in `~/.config/pulse/`.
+Remove in-repo mode entirely. All experiments live in `~/.config/devex/`.
 
 ### Rationale
 
-1. **Adds complexity for marginal benefit**: Users can already configure repositories for git metrics via `pulse config add repos <path>`. In-repo mode just changes where data is stored.
+1. **Adds complexity for marginal benefit**: Users can already configure repositories for git metrics via `devex config add repos <path>`. In-repo mode just changes where data is stored.
 
 2. **Data locality is a false benefit**: Having experiment data in the repo sounds appealing but:
-   - It clutters the repo with a `.pulse/` directory
+   - It clutters the repo with a `.devex/` directory
    - Data still shouldn't be committed (sensitive reflections)
    - Makes experiments harder to find/manage if scattered across repos
 
-3. **Simpler mental model**: One location for all Pulse data. Users don't have to remember where each experiment lives.
+3. **Simpler mental model**: One location for all Devex data. Users don't have to remember where each experiment lives.
 
 4. **Easier to implement**: No need to handle two data location modes, no path resolution complexity, no `.gitignore` manipulation.
 

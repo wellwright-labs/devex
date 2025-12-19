@@ -1,5 +1,5 @@
 /**
- * Pulse type definitions
+ * Devex type definitions
  * All data schemas for the experiment tracking system
  *
  * Date handling: All datetime fields use Date objects at runtime.

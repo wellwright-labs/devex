@@ -1,0 +1,5 @@
+# built binaries
+dist/
+
+# lock file (can be generated from deno.json)
+deno.lock

@@ -1,5 +1,5 @@
 /**
- * pulse export command
+ * devex export command
  * Export all experiment data as JSON
  */
 
@@ -41,7 +41,7 @@ function validate(args: Args): ExportArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse export [options]
+Usage: devex export [options]
 
 Export all experiment data as JSON.
 
@@ -50,8 +50,8 @@ Options:
   --help, -h             Show this help
 
 Examples:
-  pulse export                     # Print JSON to stdout
-  pulse export -o backup.json      # Write to file
+  devex export                     # Print JSON to stdout
+  devex export -o backup.json      # Write to file
 `);
 }
 
@@ -152,7 +152,7 @@ function dateReplacer(_key: string, value: unknown): unknown {
 export const exportCommand: Command<ExportArgs> = {
   name: "export",
   description: "Export experiment data as JSON",
-  usage: "pulse export [--output file]",
+  usage: "devex export [--output file]",
   parseOptions: {
     boolean: ["help"],
     string: ["output"],

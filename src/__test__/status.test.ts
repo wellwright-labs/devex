@@ -17,7 +17,7 @@ import {
 Deno.test("calculateNextAction - suggests daily after 5pm if not done", () => {
   const now = new Date("2025-01-15T17:30:00"); // 5:30pm
   const result = calculateNextAction(now, 3, 3, [], false, false);
-  assertEquals(result, "pulse daily");
+  assertEquals(result, "devex daily");
 });
 
 Deno.test("calculateNextAction - doesn't suggest daily after 5pm if done", () => {
@@ -34,19 +34,19 @@ Deno.test("calculateNextAction - doesn't suggest daily after 5pm if done", () =>
 Deno.test("calculateNextAction - suggests weekly on Friday if not done", () => {
   const now = new Date("2025-01-17T14:00:00"); // Friday 2pm
   const result = calculateNextAction(now, 3, 3, [], true, false);
-  assertEquals(result, "pulse weekly");
+  assertEquals(result, "devex weekly");
 });
 
 Deno.test("calculateNextAction - suggests weekly on Saturday if not done", () => {
   const now = new Date("2025-01-18T10:00:00"); // Saturday 10am
   const result = calculateNextAction(now, 3, 3, [], true, false);
-  assertEquals(result, "pulse weekly");
+  assertEquals(result, "devex weekly");
 });
 
 Deno.test("calculateNextAction - doesn't suggest weekly on Thursday", () => {
   const now = new Date("2025-01-16T14:00:00"); // Thursday 2pm
   const result = calculateNextAction(now, 3, 3, [], true, false);
-  // Should not be "pulse weekly" (weekly comes on Fri or later)
+  // Should not be "devex weekly" (weekly comes on Fri or later)
   assertStringIncludes(result, "weekly");
   assertStringIncludes(result, "end of week"); // hint it's for later
 });
@@ -58,21 +58,21 @@ Deno.test("calculateNextAction - doesn't suggest weekly on Thursday", () => {
 Deno.test("calculateNextAction - suggests checkin when needed", () => {
   const now = new Date("2025-01-15T11:00:00"); // Wednesday 11am
   const result = calculateNextAction(now, 0, 3, [], false, false);
-  assertStringIncludes(result, "pulse checkin");
+  assertStringIncludes(result, "devex checkin");
 });
 
 Deno.test("calculateNextAction - includes timing hint for checkin", () => {
   const now = new Date("2025-01-15T10:00:00"); // Wednesday 10am
   // 0 checkins, expecting 3, 7 hours of work remaining
   const result = calculateNextAction(now, 0, 3, [], false, false);
-  assertStringIncludes(result, "pulse checkin");
+  assertStringIncludes(result, "devex checkin");
   // Should include some timing guidance
 });
 
 Deno.test("calculateNextAction - suggests daily at end of day when checkins done", () => {
   const now = new Date("2025-01-15T14:00:00"); // Wednesday 2pm
   const result = calculateNextAction(now, 3, 3, [], false, false);
-  assertStringIncludes(result, "pulse daily");
+  assertStringIncludes(result, "devex daily");
   assertStringIncludes(result, "end of day");
 });
 

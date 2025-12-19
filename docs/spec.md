@@ -1,11 +1,11 @@
-# Pulse — Specification
+# Devex — Specification
 ---
 
 ## Overview
 
 A command-line tool for developers to run structured self-experiments on their workflow, productivity, and experience. Users define hypotheses, work in time-boxed blocks under different conditions, and collect both subjective (checkins, reflections) and objective (git metrics) data to evaluate their hypotheses.
 
-While `pulse` ships with a default "AI-assisted coding" experiment template, it's designed to support any workflow experiment: editor changes, work schedule variations, music/environment, methodology shifts, etc.
+While `devex` ships with a default "AI-assisted coding" experiment template, it's designed to support any workflow experiment: editor changes, work schedule variations, music/environment, methodology shifts, etc.
 
 ---
 
@@ -60,10 +60,10 @@ Objective measurements. Currently supports git-based metrics (commits, lines cha
 
 ## Data Storage
 
-All data lives in `~/.config/pulse/` by default (or `~/pulse/` on systems without XDG).
+All data lives in `~/.config/devex/` by default (or `~/devex/` on systems without XDG).
 
 ```
-~/.config/pulse/
+~/.config/devex/
 ├── config.json              # Global configuration
 ├── experiments/
 │   └── ai-coding/           # One directory per experiment
@@ -87,7 +87,7 @@ All data lives in `~/.config/pulse/` by default (or `~/pulse/` on systems withou
 
 ### Git-Based Version Control
 
-The entire `~/.config/pulse/` directory is initialized as a git repository. This provides:
+The entire `~/.config/devex/` directory is initialized as a git repository. This provides:
 - Version history of all data
 - Ability to push to a private remote for backup
 - Branch-based experimentation on the tool itself
@@ -102,14 +102,14 @@ The tool auto-commits on significant actions (block start/end, daily log complet
 ### Global
 
 ```
-pulse --help
-pulse --version
+devex --help
+devex --version
 ```
 
 ### Initialization & Configuration
 
 ```
-pulse init [experiment-name]
+devex init [experiment-name]
 ```
 
 Creates a new experiment. Prompts for:
@@ -118,26 +118,26 @@ Creates a new experiment. Prompts for:
 - Hypotheses (freeform, one per line, optional)
 - Conditions to define
 
-If first run, also initializes `~/.config/pulse/` as a git repo.
+If first run, also initializes `~/.config/devex/` as a git repo.
 
 ```
-pulse config
+devex config
 ```
 
 Opens config in `$EDITOR`. Or with subcommands:
 
 ```
-pulse config set checkin.frequency 3        # checkins per day
-pulse config set checkin.prompt true        # whether to show reminder prompts
-pulse config add repos ~/projects/my-app    # add repo for git metrics
-pulse config remove repos ~/projects/old    # remove repo
-pulse config list                           # show current config
+devex config set checkin.frequency 3        # checkins per day
+devex config set checkin.prompt true        # whether to show reminder prompts
+devex config add repos ~/projects/my-app    # add repo for git metrics
+devex config remove repos ~/projects/old    # remove repo
+devex config list                           # show current config
 ```
 
 ```
-pulse template list
-pulse template show <name>
-pulse template create <name>
+devex template list
+devex template show <name>
+devex template create <name>
 ```
 
 Manage experiment templates.
@@ -147,27 +147,27 @@ Manage experiment templates.
 ### Experiment Management
 
 ```
-pulse experiment list
-pulse experiment switch <name>
-pulse experiment archive <name>
-pulse experiment delete <name>
+devex experiment list
+devex experiment switch <name>
+devex experiment archive <name>
+devex experiment delete <name>
 ```
 
 Multiple experiments can exist; one is "active" at a time.
 
 ```
-pulse hypothesis add "<hypothesis>"
-pulse hypothesis list
-pulse hypothesis remove <index>
+devex hypothesis add "<hypothesis>"
+devex hypothesis list
+devex hypothesis remove <index>
 ```
 
 Manage hypotheses for current experiment.
 
 ```
-pulse condition add <name> [--description "..."] [--rules "..."]
-pulse condition list
-pulse condition edit <name>
-pulse condition remove <name>
+devex condition add <name> [--description "..."] [--rules "..."]
+devex condition list
+devex condition edit <name>
+devex condition remove <name>
 ```
 
 Manage conditions for current experiment.
@@ -177,7 +177,7 @@ Manage conditions for current experiment.
 ### Block Management
 
 ```
-pulse block start <condition> [--duration <days>] [--tags <tag1,tag2>]
+devex block start <condition> [--duration <days>] [--tags <tag1,tag2>]
 ```
 
 Starts a new block. `<condition>` must be defined in the experiment.
@@ -187,7 +187,7 @@ Starts a new block. `<condition>` must be defined in the experiment.
 - Fails if a block is already active
 
 ```
-pulse block end
+devex block end
 ```
 
 Ends current block. Prompts for block summary:
@@ -198,19 +198,19 @@ Ends current block. Prompts for block summary:
 Triggers metric computation for the block's date range.
 
 ```
-pulse block extend <days>
+devex block extend <days>
 ```
 
 Extends current block's expected duration.
 
 ```
-pulse block status
+devex block status
 ```
 
 Shows current block info: condition, day X of Y, start date, tags.
 
 ```
-pulse block list [--experiment <name>]
+devex block list [--experiment <name>]
 ```
 
 Lists all blocks with dates, conditions, and status.
@@ -220,7 +220,7 @@ Lists all blocks with dates, conditions, and status.
 ### Data Capture
 
 ```
-pulse checkin
+devex checkin
 ```
 
 Interactive micro checkin. Questions are configurable per experiment. Default prompts:
@@ -240,13 +240,13 @@ One word to describe right now: _
 All prompts accept Enter for default/skip. Designed to complete in <30 seconds.
 
 ```
-pulse checkin --quick
+devex checkin --quick
 ```
 
 Logs a neutral checkin (all defaults) instantly. For when you want to record "I was here" without detail.
 
 ```
-pulse daily
+devex daily
 ```
 
 End-of-day log. Default prompts:
@@ -276,7 +276,7 @@ Notes (optional):
 ```
 
 ```
-pulse weekly
+devex weekly
 ```
 
 Weekly reflection. Longer prompts:
@@ -315,20 +315,20 @@ Ratings (1-5):
 ```
 
 ```
-pulse log [message]
+devex log [message]
 ```
 
 Append to dev log. If message provided, appends immediately:
 
 ```
-$ pulse log "Finally cracked the caching bug after 2 hours"
+$ devex log "Finally cracked the caching bug after 2 hours"
 ✓ Logged at 3:45 PM
 ```
 
 If no message, opens prompt. Works without an active block.
 
 ```
-pulse violation [note]
+devex violation [note]
 ```
 
 Records a rule violation for the current block. Prompts for details if no note provided. Important for data integrity.
@@ -338,7 +338,7 @@ Records a rule violation for the current block. Prompts for details if no note p
 ### Metrics & Analysis
 
 ```
-pulse metrics [--block <name>] [--repo <path>]
+devex metrics [--block <name>] [--repo <path>]
 ```
 
 Computes/displays git metrics. Shows for current block by default.
@@ -355,16 +355,16 @@ Doc files:         4
 Avg commits/day:   3.4
 ```
 
-If no repos configured, displays: "No repositories configured. Add with: pulse config add repos <path>"
+If no repos configured, displays: "No repositories configured. Add with: devex config add repos <path>"
 
 ```
-pulse metrics refresh [--block <name>]
+devex metrics refresh [--block <name>]
 ```
 
 Forces recomputation of metrics (normally cached).
 
 ```
-pulse report [--block <name>]
+devex report [--block <name>]
 ```
 
 Generates analysis report for a single block:
@@ -398,7 +398,7 @@ VIOLATIONS: 1
 ```
 
 ```
-pulse compare <block1> <block2> [--block3...]
+devex compare <block1> <block2> [--block3...]
 ```
 
 Generates comparison report:
@@ -440,13 +440,13 @@ H3: "I am more fulfilled with moderate AI use"
 ```
 
 ```
-pulse export [--format json|csv] [--output <file>]
+devex export [--format json|csv] [--output <file>]
 ```
 
 Exports all experiment data for external analysis.
 
 ```
-pulse summary
+devex summary
 ```
 
 Quick overview of current state:
@@ -473,7 +473,7 @@ Repositories tracked: 2
 ### Utilities
 
 ```
-pulse remind
+devex remind
 ```
 
 Shows what's due/overdue:
@@ -486,41 +486,41 @@ Shows what's due/overdue:
 ```
 
 ```
-pulse edit <type> [identifier]
+devex edit <type> [identifier]
 ```
 
 Opens data file in `$EDITOR`:
 
 ```
-pulse edit daily 2025-01-15
-pulse edit checkin 2025-01-15
-pulse edit weekly 2025-W03
-pulse edit block no-ai-1
-pulse edit config
-pulse edit experiment
+devex edit daily 2025-01-15
+devex edit checkin 2025-01-15
+devex edit weekly 2025-W03
+devex edit block no-ai-1
+devex edit config
+devex edit experiment
 ```
 
 ```
-pulse git <git-args>
+devex git <git-args>
 ```
 
 Passes through to git in the data directory:
 
 ```
-pulse git status
-pulse git log --oneline -10
-pulse git remote add origin git@github.com:user/devex-data.git
-pulse git push
+devex git status
+devex git log --oneline -10
+devex git remote add origin git@github.com:user/devex-data.git
+devex git push
 ```
 
 ```
-pulse backup [--remote <name>]
+devex backup [--remote <name>]
 ```
 
 Commits current state and pushes to remote (if configured):
 
 ```
-$ pulse backup
+$ devex backup
 Committing: 3 checkins, 1 daily log
 Pushing to origin...
 ✓ Backup complete
@@ -536,7 +536,7 @@ Pushing to origin...
 interface GlobalConfig {
   version: number;
   activeExperiment: string | null;
-  dataDir: string;                    // usually ~/.config/pulse
+  dataDir: string;                    // usually ~/.config/devex
   
   defaults: {
     blockDuration: number;            // days, default: 14
@@ -831,21 +831,21 @@ Ships with the tool as a ready-to-use experiment:
 Most data capture commands require an active block:
 
 ```
-$ pulse checkin
-No active block. Start one with: pulse block start <condition>
+$ devex checkin
+No active block. Start one with: devex block start <condition>
 
 Available conditions: no-ai, moderate, full-ai
 ```
 
 Exceptions:
-- `pulse log` works without a block (general observations)
-- `pulse report` and `pulse compare` work on historical data
+- `devex log` works without a block (general observations)
+- `devex report` and `devex compare` work on historical data
 
 ### Checkin Prompting
 
 When `checkinPrompts` is enabled:
 - Tool can integrate with system notifications (future)
-- `pulse remind` shows suggested checkin times
+- `devex remind` shows suggested checkin times
 - Each checkin records whether it was prompted or manual
 - Completion rate (prompted vs completed) is tracked in reports
 
@@ -869,14 +869,14 @@ All rating/text fields are optional. Users can skip any prompt by pressing Enter
 ### Git Integration
 
 **Data directory git**:
-- Initialized automatically on first `pulse init`
+- Initialized automatically on first `devex init`
 - Auto-commits on configurable events (block end, daily log)
-- `pulse git` passes through to git in data dir
-- `pulse backup` commits and pushes
+- `devex git` passes through to git in data dir
+- `devex backup` commits and pushes
 
 **Repository metrics**:
-- Repos added via `pulse config add repos <path>`
-- Metrics computed on `pulse metrics` or block end
+- Repos added via `devex config add repos <path>`
+- Metrics computed on `devex metrics` or block end
 - Git commands used:
 
 ```bash
@@ -897,7 +897,7 @@ Checkins should complete in <30 seconds. All prompts have defaults:
 - Booleans: false/no
 - Text: empty (skipped)
 
-Pressing Enter accepts default. `pulse checkin --quick` skips all prompts.
+Pressing Enter accepts default. `devex checkin --quick` skips all prompts.
 
 ### Data Integrity
 
@@ -973,7 +973,7 @@ src/
 
 ## Open Questions
 
-1. **Config location**: `~/.config/pulse/` vs `~/.pulse/`? XDG compliance suggests the former, but dotfile in home is more traditional.
+1. **Config location**: `~/.config/devex/` vs `~/.devex/`? XDG compliance suggests the former, but dotfile in home is more traditional.
 
 2. **Multiple active experiments**: Allow or enforce single active? Current spec assumes single active but multiple can exist.
 

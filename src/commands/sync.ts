@@ -1,5 +1,5 @@
 /**
- * pulse sync command
+ * devex sync command
  * Commit and push data directory to remote
  */
 
@@ -25,9 +25,9 @@ function validate(args: Args): SyncArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse sync [options]
+Usage: devex sync [options]
 
-Commit and push Pulse data to remote.
+Commit and push Devex data to remote.
 
 Options:
   --message, -m   Custom commit message
@@ -35,9 +35,9 @@ Options:
   --help, -h      Show this help
 
 Examples:
-  pulse sync
-  pulse sync --message "Weekly backup"
-  pulse sync --no-push
+  devex sync
+  devex sync --message "Weekly backup"
+  devex sync --no-push
 `);
 }
 
@@ -51,8 +51,8 @@ async function run(args: SyncArgs): Promise<void> {
 
   // Check if data dir is a git repo
   if (!(await isGitRepository(dataDir))) {
-    error("Pulse data directory is not a git repository.");
-    info("Run 'pulse init' to create an experiment and initialize git.");
+    error("Devex data directory is not a git repository.");
+    info("Run 'devex init' to create an experiment and initialize git.");
     Deno.exit(1);
   }
 
@@ -65,7 +65,7 @@ async function run(args: SyncArgs): Promise<void> {
 
   // Create commit message
   const timestamp = new Date().toISOString().split("T")[0];
-  const message = args.message || `Pulse sync: ${timestamp}`;
+  const message = args.message || `Devex sync: ${timestamp}`;
 
   // Commit
   try {
@@ -85,7 +85,7 @@ async function run(args: SyncArgs): Promise<void> {
   const remote = await hasRemote(dataDir);
   if (!remote) {
     warn("No remote configured - changes committed but not pushed.");
-    info("Add a remote with: pulse git remote add origin <url>");
+    info("Add a remote with: devex git remote add origin <url>");
     return;
   }
 
@@ -100,8 +100,8 @@ async function run(args: SyncArgs): Promise<void> {
 
 export const syncCommand: Command<SyncArgs> = {
   name: "sync",
-  description: "Commit and push Pulse data to remote",
-  usage: "pulse sync [--message <msg>] [--no-push]",
+  description: "Commit and push Devex data to remote",
+  usage: "devex sync [--message <msg>] [--no-push]",
   parseOptions: {
     string: ["message"],
     boolean: ["help", "no-push"],

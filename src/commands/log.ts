@@ -1,5 +1,5 @@
 /**
- * pulse log command
+ * devex log command
  * Append freeform observations to dev log
  * Works with or without an active block
  */
@@ -23,7 +23,7 @@ function validate(args: Args): LogArgs {
 
 function showHelp(): void {
   console.log(`
-Usage: pulse log [message] [options]
+Usage: devex log [message] [options]
 
 Append a freeform observation to the dev log.
 Works with or without an active block.
@@ -35,8 +35,8 @@ Options:
   --help, -h    Show this help
 
 Examples:
-  pulse log "Finally cracked the caching bug"
-  pulse log
+  devex log "Finally cracked the caching bug"
+  devex log
 `);
 }
 
@@ -49,7 +49,7 @@ async function run(args: LogArgs): Promise<void> {
   const experiment = await getCurrentExperiment();
 
   if (!experiment) {
-    error("No active experiment. Create one with: pulse init");
+    error("No active experiment. Create one with: devex init");
     Deno.exit(1);
   }
 
@@ -88,7 +88,7 @@ async function run(args: LogArgs): Promise<void> {
 export const logCommand: Command<LogArgs> = {
   name: "log",
   description: "Append to dev log",
-  usage: "pulse log [message]",
+  usage: "devex log [message]",
   parseOptions: {
     boolean: ["help"],
     alias: { h: "help" },
