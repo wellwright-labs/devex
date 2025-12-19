@@ -105,6 +105,7 @@ export interface ConfigArgs {
   subcommand?: "list" | "set" | "add" | "remove";
   key?: string;
   value?: string;
+  extra?: string; // optional branch for add repos
   help: boolean;
 }
 

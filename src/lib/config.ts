@@ -3,7 +3,7 @@
  * Handles loading, saving, and merging config from defaults and user settings
  */
 
-import type { GlobalConfig } from "../types/mod.ts";
+import type { GlobalConfig, Repository } from "../types/mod.ts";
 import { getConfigPath, getDataDir } from "./paths.ts";
 import { readJson, writeJson } from "./storage.ts";
 
@@ -61,6 +61,21 @@ export async function getConfig(): Promise<GlobalConfig> {
 }
 
 /**
+ * Migrate legacy string repositories to Repository objects
+ */
+function migrateRepositories(
+  repos: (string | Repository)[] | undefined,
+): Repository[] {
+  if (!repos) return [];
+  return repos.map((repo) => {
+    if (typeof repo === "string") {
+      return { path: repo };
+    }
+    return repo;
+  });
+}
+
+/**
  * Deep merge two config objects
  * The second object's values override the first
  */
@@ -68,6 +83,11 @@ export function mergeConfig(
   defaults: GlobalConfig,
   saved: Partial<GlobalConfig>,
 ): GlobalConfig {
+  // Migrate legacy string repos to Repository objects
+  const savedRepos = saved.repositories
+    ? migrateRepositories(saved.repositories as (string | Repository)[])
+    : defaults.repositories;
+
   return {
     version: saved.version ?? defaults.version,
     activeExperiment: saved.activeExperiment ?? defaults.activeExperiment,
@@ -82,7 +102,7 @@ export function mergeConfig(
         defaults.defaults.checkinPrompts,
     },
 
-    repositories: saved.repositories ?? defaults.repositories,
+    repositories: savedRepos,
 
     git: {
       autoCommit: saved.git?.autoCommit ?? defaults.git.autoCommit,
@@ -120,10 +140,24 @@ export async function setActiveExperiment(name: string | null): Promise<void> {
 /**
  * Add a repository to track for git metrics
  */
-export async function addRepository(path: string): Promise<void> {
+export async function addRepository(
+  path: string,
+  branch?: string,
+): Promise<void> {
   const config = await getConfig();
-  if (!config.repositories.includes(path)) {
-    config.repositories.push(path);
+  const existing = config.repositories.find((r) => r.path === path);
+  if (existing) {
+    // Update branch if provided
+    if (branch) {
+      existing.branch = branch;
+      await saveGlobalConfig(config);
+    }
+  } else {
+    const repo: Repository = { path };
+    if (branch) {
+      repo.branch = branch;
+    }
+    config.repositories.push(repo);
     await saveGlobalConfig(config);
   }
 }
@@ -133,7 +167,7 @@ export async function addRepository(path: string): Promise<void> {
  */
 export async function removeRepository(path: string): Promise<void> {
   const config = await getConfig();
-  const index = config.repositories.indexOf(path);
+  const index = config.repositories.findIndex((r) => r.path === path);
   if (index !== -1) {
     config.repositories.splice(index, 1);
     await saveGlobalConfig(config);

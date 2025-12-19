@@ -10,6 +10,11 @@
 // Global Config
 // =============================================================================
 
+export interface Repository {
+  path: string; // local path or GitHub owner/repo
+  branch?: string; // default branch for metrics (defaults to repo's default)
+}
+
 export interface GlobalConfig {
   version: number;
   activeExperiment: string | null;
@@ -21,7 +26,7 @@ export interface GlobalConfig {
     checkinPrompts: boolean; // show reminders, default: true
   };
 
-  repositories: string[]; // paths to repos for git metrics
+  repositories: Repository[]; // repos for git metrics
 
   git: {
     autoCommit: boolean; // default: true

@@ -24,6 +24,7 @@ function validate(args: Args): ConfigArgs {
 
   let key: string | undefined;
   let value: string | undefined;
+  let extra: string | undefined;
 
   if (subcommand === "set") {
     key = positionals[2];
@@ -31,12 +32,14 @@ function validate(args: Args): ConfigArgs {
   } else if (subcommand === "add" || subcommand === "remove") {
     key = positionals[2]; // e.g., "repos"
     value = positionals[3]; // e.g., path
+    extra = positionals[4]; // e.g., branch (for add repos)
   }
 
   return {
     subcommand,
     key,
     value,
+    extra,
     help: Boolean(args.help || args.h),
   };
 }
@@ -51,7 +54,7 @@ Subcommands:
   (none)                         Open config in $EDITOR
   list                           Show current config
   set <key> <value>              Set a config value
-  add repos <path>               Add a repository to track
+  add repos <path> [branch]      Add a repository to track (optional branch)
   remove repos <path>            Remove a repository from tracking
 
 Options:
@@ -71,6 +74,7 @@ Examples:
   devex config list              # Show current config
   devex config set defaults.blockDuration 7
   devex config add repos ~/projects/my-app
+  devex config add repos ~/projects/my-app main    # With specific branch
   devex config remove repos ~/projects/old-app
 `);
 }
@@ -95,7 +99,7 @@ async function run(args: ConfigArgs): Promise<void> {
       await setConfigValue(args.key, args.value);
       break;
     case "add":
-      await addRepoPath(args.key, args.value);
+      await addRepoPath(args.key, args.value, args.extra);
       break;
     case "remove":
       await removeRepoPath(args.key, args.value);
@@ -171,9 +175,10 @@ async function setConfigValue(
 async function addRepoPath(
   target: string | undefined,
   path: string | undefined,
+  branch?: string,
 ): Promise<void> {
   if (target !== "repos" || !path) {
-    error("Usage: devex config add repos <path>");
+    error("Usage: devex config add repos <path> [branch]");
     Deno.exit(1);
   }
 
@@ -186,8 +191,12 @@ async function addRepoPath(
     Deno.exit(1);
   }
 
-  await addRepository(absolutePath);
-  success(`Added repository: ${absolutePath}`);
+  await addRepository(absolutePath, branch);
+  if (branch) {
+    success(`Added repository: ${absolutePath} (branch: ${branch})`);
+  } else {
+    success(`Added repository: ${absolutePath}`);
+  }
 }
 
 async function removeRepoPath(
@@ -203,17 +212,21 @@ async function removeRepoPath(
   const config = await getConfig();
   const absolutePath = resolve(Deno.cwd(), path);
 
-  if (
-    !config.repositories.includes(path) &&
-    !config.repositories.includes(absolutePath)
-  ) {
+  // Find by path property
+  const matchByPath = config.repositories.find((r) => r.path === path);
+  const matchByAbsolute = config.repositories.find(
+    (r) => r.path === absolutePath,
+  );
+
+  if (!matchByPath && !matchByAbsolute) {
     error(`Repository not in config: ${path}`);
-    info(`Current repositories: ${config.repositories.join(", ") || "(none)"}`);
+    const repoPaths = config.repositories.map((r) => r.path).join(", ");
+    info(`Current repositories: ${repoPaths || "(none)"}`);
     Deno.exit(1);
   }
 
   // Remove whichever one exists
-  if (config.repositories.includes(path)) {
+  if (matchByPath) {
     await removeRepository(path);
   } else {
     await removeRepository(absolutePath);

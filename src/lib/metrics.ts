@@ -4,6 +4,11 @@
  */
 
 import type { Block, GitMetrics, RepoMetrics } from "../types/mod.ts";
+  Block,
+  GitMetrics,
+  RepoMetrics,
+  Repository,
+} from "../types/mod.ts";
 import { getGitHubToken } from "./config.ts";
 import { gitCommand } from "./git.ts";
 
@@ -61,17 +66,33 @@ export function parseRepoIdentifier(repo: string): RepoIdentifier {
   return { type: "local", path: repo };
 }
 
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.login;
+    }
+  } catch {
+    // Ignore errors, will fall back to no filtering
+  }
+
+  return null;
+}
+
 // =============================================================================
 // Local Git Metrics
 // =============================================================================
 
 /**
  * Compute metrics for a local git repository
+ * Filters to commits by the current git user
  */
 export async function computeLocalRepoMetrics(
   repoPath: string,
   startDate: Date,
   endDate: Date,
+  branch?: string,
 ): Promise<RepoMetrics> {
   // Verify it's a git repository
   const checkResult = await gitCommand(
@@ -85,19 +106,35 @@ export async function computeLocalRepoMetrics(
     );
   }
 
+  // Get current user's email for filtering
+  const userEmail = await getGitUserEmail(repoPath);
+
   const afterDate = startDate.toISOString();
   const beforeDate = endDate.toISOString();
 
-  // Get commit hashes and timestamps
-  const logResult = await gitCommand(
-    [
-      "log",
-      `--after=${afterDate}`,
-      `--before=${beforeDate}`,
-      "--format=%H|%aI",
-    ],
-    repoPath,
+  // Build git log arguments
+  const logArgs = [
+    "log",
+  ];
+
+  // Add branch if specified (must come before date filters)
+  if (branch) {
+    logArgs.push(branch);
+  }
+
+  logArgs.push(
+    `--after=${afterDate}`,
+    `--before=${beforeDate}`,
+    "--format=%H|%aI",
   );
+
+  // Filter by author if we have the user's email
+  if (userEmail) {
+    logArgs.push(`--author=${userEmail}`);
+  }
+
+  // Get commit hashes and timestamps
+  const logResult = await gitCommand(logArgs, repoPath);
 
   const commits: Array<{ hash: string; date: Date }> = [];
   if (logResult.success && logResult.stdout) {
@@ -109,17 +146,29 @@ export async function computeLocalRepoMetrics(
     }
   }
 
-  // Get numstat for line counts
-  const numstatResult = await gitCommand(
-    [
-      "log",
-      `--after=${afterDate}`,
-      `--before=${beforeDate}`,
-      "--numstat",
-      "--format=",
-    ],
-    repoPath,
+  // Build numstat arguments (same author filter)
+  const numstatArgs = [
+    "log",
+  ];
+
+  // Add branch if specified (must come before date filters)
+  if (branch) {
+    numstatArgs.push(branch);
+  }
+
+  numstatArgs.push(
+    `--after=${afterDate}`,
+    `--before=${beforeDate}`,
+    "--numstat",
+    "--format=",
   );
+
+  if (userEmail) {
+    numstatArgs.push(`--author=${userEmail}`);
+  }
+
+  // Get numstat for line counts
+  const numstatResult = await gitCommand(numstatArgs, repoPath);
 
   let linesAdded = 0;
   let linesRemoved = 0;
@@ -179,12 +228,14 @@ export async function computeLocalRepoMetrics(
 
 /**
  * Compute metrics for a GitHub repository via API
+ * Filters to commits by the authenticated user
  */
 export async function computeGitHubRepoMetrics(
   owner: string,
   repo: string,
   startDate: Date,
   endDate: Date,
+  branch?: string,
 ): Promise<RepoMetrics> {
   const token = await getGitHubToken();
 
@@ -197,6 +248,9 @@ export async function computeGitHubRepoMetrics(
     headers["Authorization"] = `token ${token}`;
   }
 
+  // Get current user's GitHub username for filtering
+  const username = await getGitHubUsername();
+
   // Fetch all commits in date range with pagination
   const since = startDate.toISOString();
   const until = endDate.toISOString();
@@ -206,8 +260,17 @@ export async function computeGitHubRepoMetrics(
   const perPage = 100;
 
   while (true) {
-    const commitsUrl =
+    // Build URL with optional author and branch filters
+    let commitsUrl =
       `https://api.github.com/repos/${owner}/${repo}/commits?since=${since}&until=${until}&per_page=${perPage}&page=${page}`;
+
+    if (branch) {
+      commitsUrl += `&sha=${branch}`;
+    }
+
+    if (username) {
+      commitsUrl += `&author=${username}`;
+    }
 
     const commitsResponse = await fetch(commitsUrl, { headers });
 
@@ -333,20 +396,26 @@ export async function computeGitHubRepoMetrics(
  * Compute metrics for a single repository (local or GitHub)
  */
 export function computeRepoMetrics(
-  repo: string,
+  repo: Repository,
   startDate: Date,
   endDate: Date,
 ): Promise<RepoMetrics> {
-  const identifier = parseRepoIdentifier(repo);
+  const identifier = parseRepoIdentifier(repo.path);
 
   if (identifier.type === "local") {
-    return computeLocalRepoMetrics(identifier.path, startDate, endDate);
+    return computeLocalRepoMetrics(
+      identifier.path,
+      startDate,
+      endDate,
+      repo.branch,
+    );
   } else {
     return computeGitHubRepoMetrics(
       identifier.owner,
       identifier.repo,
       startDate,
       endDate,
+      repo.branch,
     );
   }
 }
@@ -401,7 +470,7 @@ export function aggregateRepoMetrics(
  */
 export async function computeGitMetrics(
   block: Block,
-  repositories: string[],
+  repositories: Repository[],
 ): Promise<GitMetrics> {
   const startDate = block.startDate;
   const endDate = block.endDate ?? new Date();
@@ -410,10 +479,17 @@ export async function computeGitMetrics(
 
   for (const repo of repositories) {
     try {
-      repoMetrics[repo] = await computeRepoMetrics(repo, startDate, endDate);
+      repoMetrics[repo.path] = await computeRepoMetrics(
+        repo,
+        startDate,
+        endDate,
+      );
     } catch (error) {
       // Log error but continue with other repos
-      console.error(`Warning: Could not compute metrics for ${repo}:`, error);
+      console.error(
+        `Warning: Could not compute metrics for ${repo.path}:`,
+        error,
+      );
     }
   }
 

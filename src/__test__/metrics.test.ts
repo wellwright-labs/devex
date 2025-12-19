@@ -1,11 +1,16 @@
 /**
  * Tests for metrics utilities
  * Focus: pure functions for repo parsing and aggregation
+ * Integration tests for git metrics with author filtering
  */
 
-import { assertEquals } from "@std/assert";
-import { aggregateRepoMetrics, parseRepoIdentifier } from "../lib/metrics.ts";
-import { makeRepoMetrics } from "./helpers.ts";
+import { assertEquals, assertGreater } from "@std/assert";
+import {
+  aggregateRepoMetrics,
+  computeLocalRepoMetrics,
+  parseRepoIdentifier,
+} from "../lib/metrics.ts";
+import { cleanupTempDir, createTempDir, makeRepoMetrics } from "./helpers.ts";
 
 // =============================================================================
 // parseRepoIdentifier - Local paths
@@ -190,4 +195,131 @@ Deno.test("aggregateRepoMetrics - sorts firstCommitTimes by date", () => {
   assertEquals(result.firstCommitTimes[0].toISOString(), date2.toISOString()); // 15th
   assertEquals(result.firstCommitTimes[1].toISOString(), date3.toISOString()); // 16th
   assertEquals(result.firstCommitTimes[2].toISOString(), date1.toISOString()); // 17th
+});
+
+// =============================================================================
+// computeLocalRepoMetrics - Integration tests with real git repos
+// =============================================================================
+
+/**
+ * Helper to run git commands in a directory
+ */
+async function runGit(
+  args: string[],
+  cwd: string,
+): Promise<{ success: boolean; stdout: string }> {
+  const command = new Deno.Command("git", {
+    args,
+    cwd,
+    stdout: "piped",
+    stderr: "piped",
+  });
+  const { success, stdout } = await command.output();
+  return { success, stdout: new TextDecoder().decode(stdout) };
+}
+
+/**
+ * Create a test git repo with commits from different authors
+ */
+async function createTestGitRepo(
+  dir: string,
+  userEmail: string,
+  userName: string,
+): Promise<void> {
+  await runGit(["init"], dir);
+  await runGit(["config", "user.email", userEmail], dir);
+  await runGit(["config", "user.name", userName], dir);
+}
+
+Deno.test("computeLocalRepoMetrics - filters by author email", async () => {
+  const tempDir = await createTempDir();
+
+  try {
+    // Set up git repo with current user's email
+    await createTestGitRepo(tempDir, "test@example.com", "Test User");
+
+    // Create a file and commit as current user
+    await Deno.writeTextFile(`${tempDir}/file1.txt`, "content from user");
+    await runGit(["add", "file1.txt"], tempDir);
+    await runGit(["commit", "-m", "User commit"], tempDir);
+
+    // Create another commit as a different author
+    await runGit(["config", "user.email", "other@example.com"], tempDir);
+    await runGit(["config", "user.name", "Other User"], tempDir);
+    await Deno.writeTextFile(`${tempDir}/file2.txt`, "content from other");
+    await runGit(["add", "file2.txt"], tempDir);
+    await runGit(["commit", "-m", "Other commit"], tempDir);
+
+    // Reset back to original user for the test
+    await runGit(["config", "user.email", "test@example.com"], tempDir);
+    await runGit(["config", "user.name", "Test User"], tempDir);
+
+    // Compute metrics - should only count commits by test@example.com
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000); // 1 day ago
+    const endDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day from now
+
+    const metrics = await computeLocalRepoMetrics(tempDir, startDate, endDate);
+
+    // Should only count 1 commit (from the current user)
+    assertEquals(metrics.commits, 1);
+    // Should only count file1.txt changes
+    assertEquals(metrics.filesChanged, 1);
+  } finally {
+    await cleanupTempDir(tempDir);
+  }
+});
+
+Deno.test("computeLocalRepoMetrics - counts all commits from current user", async () => {
+  const tempDir = await createTempDir();
+
+  try {
+    await createTestGitRepo(tempDir, "test@example.com", "Test User");
+
+    // Create multiple commits as current user
+    await Deno.writeTextFile(`${tempDir}/file1.txt`, "content 1");
+    await runGit(["add", "file1.txt"], tempDir);
+    await runGit(["commit", "-m", "Commit 1"], tempDir);
+
+    await Deno.writeTextFile(`${tempDir}/file2.txt`, "content 2");
+    await runGit(["add", "file2.txt"], tempDir);
+    await runGit(["commit", "-m", "Commit 2"], tempDir);
+
+    await Deno.writeTextFile(`${tempDir}/file3.txt`, "content 3");
+    await runGit(["add", "file3.txt"], tempDir);
+    await runGit(["commit", "-m", "Commit 3"], tempDir);
+
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const endDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const metrics = await computeLocalRepoMetrics(tempDir, startDate, endDate);
+
+    assertEquals(metrics.commits, 3);
+    assertEquals(metrics.filesChanged, 3);
+  } finally {
+    await cleanupTempDir(tempDir);
+  }
+});
+
+Deno.test("computeLocalRepoMetrics - calculates lines correctly with author filter", async () => {
+  const tempDir = await createTempDir();
+
+  try {
+    await createTestGitRepo(tempDir, "test@example.com", "Test User");
+
+    // Create file with multiple lines
+    await Deno.writeTextFile(`${tempDir}/code.ts`, "line1\nline2\nline3\n");
+    await runGit(["add", "code.ts"], tempDir);
+    await runGit(["commit", "-m", "Add code file"], tempDir);
+
+    const startDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const endDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const metrics = await computeLocalRepoMetrics(tempDir, startDate, endDate);
+
+    assertEquals(metrics.commits, 1);
+    assertGreater(metrics.linesAdded, 0);
+    assertEquals(metrics.linesRemoved, 0);
+  } finally {
+    await cleanupTempDir(tempDir);
+  }
 });

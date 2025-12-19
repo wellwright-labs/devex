@@ -86,15 +86,50 @@ Deno.test("mergeConfig - zero values preserved", () => {
 Deno.test("mergeConfig - repositories array replaced", () => {
   const defaults = getDefaults();
   const result = mergeConfig(defaults, {
-    repositories: ["/path/to/repo1", "/path/to/repo2"],
+    repositories: [{ path: "/path/to/repo1" }, { path: "/path/to/repo2" }],
   });
 
-  assertEquals(result.repositories, ["/path/to/repo1", "/path/to/repo2"]);
+  assertEquals(result.repositories, [
+    { path: "/path/to/repo1" },
+    { path: "/path/to/repo2" },
+  ]);
 });
 
 Deno.test("mergeConfig - empty repositories array preserved", () => {
-  const defaults = { ...getDefaults(), repositories: ["/default/repo"] };
+  const defaults = {
+    ...getDefaults(),
+    repositories: [{ path: "/default/repo" }],
+  };
   const result = mergeConfig(defaults, { repositories: [] });
 
   assertEquals(result.repositories, []);
+});
+
+Deno.test("mergeConfig - migrates legacy string repositories", () => {
+  const defaults = getDefaults();
+  // Simulate old config format with string repositories
+  const saved = {
+    repositories: ["/path/to/repo1", "/path/to/repo2"],
+  } as unknown as Partial<GlobalConfig>;
+  const result = mergeConfig(defaults, saved);
+
+  assertEquals(result.repositories, [
+    { path: "/path/to/repo1" },
+    { path: "/path/to/repo2" },
+  ]);
+});
+
+Deno.test("mergeConfig - preserves branch in repository objects", () => {
+  const defaults = getDefaults();
+  const result = mergeConfig(defaults, {
+    repositories: [
+      { path: "/path/to/repo1", branch: "main" },
+      { path: "/path/to/repo2" },
+    ],
+  });
+
+  assertEquals(result.repositories, [
+    { path: "/path/to/repo1", branch: "main" },
+    { path: "/path/to/repo2" },
+  ]);
 });

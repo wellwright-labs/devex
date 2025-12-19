@@ -127,6 +127,9 @@ To track objective coding metrics, configure the repositories you work in:
 devex config add repos ~/projects/my-app
 devex config add repos ~/projects/backend
 
+# Specify a branch for metrics (optional, defaults to current branch)
+devex config add repos ~/projects/my-app main
+
 # Or GitHub repositories (requires GITHUB_TOKEN for private repos)
 devex config add repos owner/repo
 ```
@@ -180,16 +183,11 @@ After completing blocks, you have several ways to analyze your data:
 - [x] Milestone 3: Analysis & reporting (metrics, reports, compare)
 - [x] Milestone 4: Polish & completeness (weekly, config, edit, export, status, reminders)
 - [x] Milestone 5: Distribution (JSR, Homebrew, compiled binaries)
-- [ ] Milestone 6: Git metrics accuracy & polish
-  - [ ] Filter git commits by author (currently counts all commits)
-  - [ ] Support configurable branch per repo (currently uses HEAD)
-  - [ ] Add experiment list/switch commands
-  - [ ] Document known limitations
+- [x] Milestone 6: Git metrics accuracy & polish
+  - [x] Filter git commits by author (uses git user.email for local, GitHub username for remote)
+  - [x] Support configurable branch per repo
 
 ## known limitations
-
-- **Git metrics count all commits**: Currently counts all commits in configured repos during the block timeframe, not just yours. Author filtering coming in Milestone 6.
-- **Branch handling**: Git analysis runs on the current branch (HEAD). No branch configuration yet. This limits accuracy for repos using squash merging or complex branching strategies.
 - **Duplicate repo detection**: If you add the same repo both as a local path and GitHub URL, commits will be double-counted.
 - **Multiple experiments**: You can have multiple experiments, but there's no `list` or `switch` command yet. To switch, edit `activeExperiment` in `~/.config/devex/config.json`.
 
@@ -197,6 +195,7 @@ After completing blocks, you have several ways to analyze your data:
 
 ### prioritized
 
+- **Experiment list/switch** - Add `devex experiment list` and `devex experiment switch` commands for managing multiple experiments.
 - **AI observability** - Hook into LLM/agent prompts for reflection. Record inputs, timestamps, tokens to a local database for analysis and pattern recognition.
 - **Metrics upload** - Optional upload to a hosted site for aggregated insights. Privacy-preserving: no code or logs, just metrics. Manual form or automated CLI integration.
 
