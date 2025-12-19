@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "exports": "./src/main.ts",
   "publish": {
-    "include": ["src/**/*.ts", "LICENSE", "README.md", "deno.json"],
+    "include": ["src/**/*.ts", "src/**/*.json", "LICENSE", "README.md", "deno.json"],
     "exclude": ["src/**/*.test.ts", "src/__test__/**"]
   },
   "fmt": {
