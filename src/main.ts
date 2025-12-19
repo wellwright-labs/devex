@@ -1,6 +1,27 @@
 /**
- * Devex CLI entry point
- * Routes commands to their handlers
+ * @module
+ *
+ * Devex - A CLI for structured developer self-experimentation.
+ *
+ * Run experiments on your workflow, collect data, and analyze what works.
+ *
+ * @example Install and run
+ * ```bash
+ * # Install from JSR
+ * deno install -A jsr:@wellwright/devex
+ *
+ * # Create an experiment
+ * devex init
+ *
+ * # Start a work block
+ * devex block start no-ai
+ *
+ * # Check in throughout the day
+ * devex checkin
+ *
+ * # End of day reflection
+ * devex daily
+ * ```
  */
 
 import { parseArgs } from "@std/cli/parse-args";

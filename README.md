@@ -6,6 +6,12 @@ Define hypotheses, work in time-boxed blocks under different conditions, and col
 
 While `devex` ships with a default "AI-assisted coding" experiment template (and is ultimately the original purpose), it is designed to support any workflow experiment: editor changes, work schedule variations, music/environment, methodology shifts, etc.
 
+## install
+
+```bash
+deno install -A jsr:@wellwright/devex
+```
+
 ## quick start
 
 ```bash
