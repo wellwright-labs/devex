@@ -18,7 +18,8 @@ While `devex` ships with a default "AI-assisted coding" experiment template (and
 
 ```bash
 # Via Homebrew (macOS/Linux)
-brew install wellwright-labs/devex/devex
+brew tap wellwright-labs/devex
+brew install devex
 
 # Via Deno
 deno install -g -A -n devex jsr:@wellwright/devex
